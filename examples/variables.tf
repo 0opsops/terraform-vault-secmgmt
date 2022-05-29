@@ -384,12 +384,6 @@ variable "acc_bound_claims" {
   description = "JWT/OIDC auth backend role for AWS Account in a Vault server"
 }
 
-variable "secret_role_name" {
-  type        = string
-  default     = "ops"
-  description = "Secret role name"
-}
-
 variable "secret_token_policies" {
   type        = list(string)
   default     = ["ops"]
