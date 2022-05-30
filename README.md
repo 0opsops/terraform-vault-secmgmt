@@ -26,7 +26,7 @@ ________________________________________________________________
 
 | Name | Version |
 |------|---------|
-| <a name="provider_vault"></a> [vault](#provider\_vault) | n/a |
+| <a name="provider_vault"></a> [vault](#provider\_vault) | >= 3.5.0 |
 
 ## Modules
 
