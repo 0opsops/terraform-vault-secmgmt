@@ -23,7 +23,8 @@ provider "vault" {
 
 module "vault" {
   # source                = "git::github.com/0opsops/terraform-vault-secmgmt.git?ref=v1.0.0" ## using specific tags
-  source                = "git::github.com/0opsops/terraform-vault-secmgmt.git"
+  # source                = "git::github.com/0opsops/terraform-vault-secmgmt.git"
+  source                = "0opsops/secmgmt/vault"
   create_mountpath      = var.create_mountpath
   vault_mount           = var.vault_mount
   create_generic_secret = var.create_generic_secret
