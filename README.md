@@ -2,10 +2,11 @@
 
 ## Multi AWS account `assumed_role` and Generating `IAM Users` for CI/CD purpose on the top of pre-existing Vault!
 
-### Auth Backend
+### Auth Methods
 
 - AWS
 - JWT
+- USERPASS
 
 ### Secrets Engines
 
