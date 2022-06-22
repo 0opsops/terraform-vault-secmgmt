@@ -33,6 +33,20 @@ variable "vault_mount" {
   description = "KV-V2 secret engine path"
 }
 
+variable "create_userpass" {
+  default     = false
+  type        = bool
+  description = "Authenticate with Username/Password"
+}
+
+variable "users_path" {
+  type = map(object({
+    path      = string
+    data_json = any
+  }))
+  description = ""
+}
+
 variable "create_generic_secret" {
   type        = bool
   default     = true

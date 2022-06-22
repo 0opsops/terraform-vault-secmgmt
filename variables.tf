@@ -12,6 +12,20 @@ variable "vault_mount" {
   description = "KV-V2 secret engine path"
 }
 
+variable "create_userpass" {
+  default     = false
+  type        = bool
+  description = "Authenticate Vault with Username/Password"
+}
+
+variable "users_path" {
+  type = map(object({
+    path      = string
+    data_json = any
+  }))
+  description = ""
+}
+
 variable "create_generic_secret" {
   type        = bool
   description = "Enable Generic Secrets or not"
@@ -24,24 +38,6 @@ variable "generic_secret" {
     delete_all_versions = bool
     data_json           = any
   }))
-  default = {
-    "key1" = {
-      data_json           = <<EOF
-      { "key1" : "value1" }
-      EOF
-      delete_all_versions = false
-      disable_read        = false
-      path                = "default1"
-    },
-    "key2" = {
-      data_json           = <<EOF
-      { "key2" : "value2" }
-      EOF
-      delete_all_versions = false
-      disable_read        = false
-      path                = "default2"
-    },
-  }
   description = "Key/Value store"
 }
 
@@ -61,7 +57,7 @@ variable "vault_policy" {
 
 ## ASSUMED ROLE
 variable "create_aws_auth_backend" {
-  default     = false
+  type        = bool
   description = "Enable AWS Auth method or not"
 }
 
@@ -143,6 +139,7 @@ variable "region" {
 ## IAM User
 variable "create_aws_auth_backend_user" {
   type        = bool
+  default     = false
   description = "Enable AWS Auth method or not"
 }
 

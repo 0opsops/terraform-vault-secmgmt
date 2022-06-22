@@ -2,7 +2,7 @@ region = "us-east-1"
 
 # KV
 vault_addr       = "https://myvault.com"
-token            = "s.asdfasdASDFASDFZXCV"
+token            = "hvs.asdfasdASDFASDFZXCV"
 create_mountpath = true
 vault_mount = {
   "qa" = {
@@ -17,6 +17,29 @@ vault_mount = {
   }
 }
 
+## USERPASS
+create_userpass = true
+users_path = { # will create 2 users authenticating vault
+  "user" = {
+    data_json = <<EOT
+      {
+        "policies": ["reader"],
+        "password": "reader"
+      }
+    EOT
+    path      = "auth/userpass/users/reader"
+  },
+  "user2" = {
+    data_json = <<EOT
+      {
+        "policies": ["admin"],
+        "password": "admin"
+      }
+    EOT
+    path      = "auth/userpass/users/admin"
+  }
+}
+
 create_generic_secret = true
 generic_secret = {
   "qa" = {
@@ -24,40 +47,40 @@ generic_secret = {
     disable_read        = false
     delete_all_versions = false
     data_json           = <<EOF
-    {
-    "availability_zones": [
-        "us-east-1a",
-        "us-east-1b",
-        "us-east-1c"
-    ],
-    "aws_region": "us-east-1",
-    "create_database_internet_gateway_route": true,
-    "create_database_subnet_group": true,
-    "create_database_subnet_route_table": true,
-    "database_subnets": [
-        "10.0.144.0/20",
-        "10.0.160.0/20",
-        "10.0.176.0/20"
-    ],
-    "elasticache_subnets": [
-        "10.0.96.0/20",
-        "10.0.112.0/20",
-        "10.0.128.0/20"
-    ],
-    "environment": "qa",
-    "private_subnets": [
-        "10.0.48.0/20",
-        "10.0.64.0/20",
-        "10.0.80.0/20"
-    ],
-    "public_subnets": [
-        "10.0.0.0/20",
-        "10.0.16.0/20",
-        "10.0.32.0/20"
-    ],
-    "vpc_cidr": "10.0.0.0/16",
-    "vpc_name": "env-qa"
-    }
+      {
+      "availability_zones": [
+          "us-east-1a",
+          "us-east-1b",
+          "us-east-1c"
+      ],
+      "aws_region": "us-east-1",
+      "create_database_internet_gateway_route": true,
+      "create_database_subnet_group": true,
+      "create_database_subnet_route_table": true,
+      "database_subnets": [
+          "10.0.144.0/20",
+          "10.0.160.0/20",
+          "10.0.176.0/20"
+      ],
+      "elasticache_subnets": [
+          "10.0.96.0/20",
+          "10.0.112.0/20",
+          "10.0.128.0/20"
+      ],
+      "environment": "qa",
+      "private_subnets": [
+          "10.0.48.0/20",
+          "10.0.64.0/20",
+          "10.0.80.0/20"
+      ],
+      "public_subnets": [
+          "10.0.0.0/20",
+          "10.0.16.0/20",
+          "10.0.32.0/20"
+      ],
+      "vpc_cidr": "10.0.0.0/16",
+      "vpc_name": "env-qa"
+      }
     EOF
   },
   "uat" = {
@@ -65,40 +88,40 @@ generic_secret = {
     disable_read        = false
     delete_all_versions = false
     data_json           = <<EOF
-    {
-    "availability_zones": [
-        "us-east-1a",
-        "us-east-1b",
-        "us-east-1c"
-    ],
-    "aws_region": "us-east-1",
-    "create_database_internet_gateway_route": true,
-    "create_database_subnet_group": true,
-    "create_database_subnet_route_table": true,
-    "database_subnets": [
-        "192.168.144.0/20",
-        "192.168.160.0/20",
-        "192.168.176.0/20"
-    ],
-    "elasticache_subnets": [
-        "192.168.96.0/20",
-        "192.168.112.0/20",
-        "192.168.128.0/20"
-    ],
-    "environment": "uat",
-    "private_subnets": [
-        "192.168.48.0/20",
-        "192.168.64.0/20",
-        "192.168.80.0/20"
-    ],
-    "public_subnets": [
-        "192.168.0.0/20",
-        "192.168.16.0/20",
-        "192.168.32.0/20"
-    ],
-    "vpc_cidr": "192.168.0.0/16",
-    "vpc_name": "env-uat"
-    }
+      {
+      "availability_zones": [
+          "us-east-1a",
+          "us-east-1b",
+          "us-east-1c"
+      ],
+      "aws_region": "us-east-1",
+      "create_database_internet_gateway_route": true,
+      "create_database_subnet_group": true,
+      "create_database_subnet_route_table": true,
+      "database_subnets": [
+          "192.168.144.0/20",
+          "192.168.160.0/20",
+          "192.168.176.0/20"
+      ],
+      "elasticache_subnets": [
+          "192.168.96.0/20",
+          "192.168.112.0/20",
+          "192.168.128.0/20"
+      ],
+      "environment": "uat",
+      "private_subnets": [
+          "192.168.48.0/20",
+          "192.168.64.0/20",
+          "192.168.80.0/20"
+      ],
+      "public_subnets": [
+          "192.168.0.0/20",
+          "192.168.16.0/20",
+          "192.168.32.0/20"
+      ],
+      "vpc_cidr": "192.168.0.0/16",
+      "vpc_name": "env-uat"
+      }
     EOF
   }
 }
@@ -112,7 +135,7 @@ vault_policy = {
       {
           capabilities = ["read"]
       }
-      EOF
+    EOF
   },
   "uat" = {
     name   = "uat-network-read"
@@ -122,7 +145,7 @@ vault_policy = {
       {
           capabilities = ["read"]
       }
-      EOF
+    EOF
   },
   "account_b" = {
     name   = "account_b"
@@ -132,7 +155,27 @@ vault_policy = {
       {
           capabilities = ["read"]
       }
-      EOF
+    EOF
+  },
+  "reader" = {
+    name   = "reader"
+    policy = <<EOF
+      ## Reader Policy
+      path "*"
+      {
+        capabilities = ["read"]
+      }
+    EOF
+  },
+  "admin" = {
+    name   = "admin"
+    policy = <<EOF
+      ## Policy for only reading operations tfvars
+      path "*"
+      {
+        capabilities = ["create", "read", "update", "delete", "list", "sudo"]
+      }
+    EOF
   }
 }
 
@@ -140,7 +183,6 @@ enabled_jwt_backend = true
 jwt_path            = "jwt"
 create_acc_role     = true
 create_secret_role  = true
-acc_role_name       = "account_b"
 acc_token_policies = [
   "account_b",
 ]
@@ -162,9 +204,9 @@ acc_bound_claims = {
     }
   }
 }
-secret_role_name = "network-read"
 secret_token_policies = [
-  "network-read",
+  "qa",
+  "uat",
 ]
 secret_bound_claims = {
   "uat-network-read" = {
@@ -238,17 +280,17 @@ secret_backend_role_user = {
   "ec2-user" = {
     name            = "ec2-user"
     policy_document = <<EOT
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Effect": "Allow",
-      "Action": "ec2:*",
-      "Resource": "*"
-    }
-  ]
-}
-EOT
+      {
+        "Version": "2012-10-17",
+        "Statement": [
+          {
+            "Effect": "Allow",
+            "Action": "ec2:*",
+            "Resource": "*"
+          }
+        ]
+      }
+    EOT
   }
 }
 credential_type_user = "iam_user"
