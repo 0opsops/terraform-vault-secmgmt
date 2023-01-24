@@ -33,51 +33,49 @@ variable "vault_mount" {
   description = "KV-V2 secret engine path"
 }
 
-variable "create_userpass" {
-  default     = false
-  type        = bool
-  description = "Authenticate with Username/Password"
-}
-
-variable "users_path" {
-  type = map(object({
-    path      = string
-    data_json = any
-  }))
-  description = ""
-}
-
-variable "create_generic_secret" {
+variable "create_kv_v2" {
   type        = bool
   default     = true
   description = "Enable Generic Secrets or not"
 }
 
-variable "generic_secret" {
+variable "kv_v2" {
   type = map(object({
-    data_json           = any
-    delete_all_versions = bool
+    sub_path            = string
     disable_read        = bool
-    path                = string
+    delete_all_versions = bool
+    data_json           = any
   }))
   default = {
     "key1" = {
+      sub_path            = "default1/network2"
+      disable_read        = false
+      delete_all_versions = false
       data_json           = <<EOF
       { "key1" : "value1" }
       EOF
-      delete_all_versions = false
-      disable_read        = false
-      path                = "default1/network2"
     },
     "key2" = {
+      sub_path            = "default2/network2"
+      disable_read        = false
+      delete_all_versions = false
       data_json           = <<EOF
       { "key2" : "value2" }
       EOF
-      delete_all_versions = false
-      disable_read        = false
-      path                = "default2/network2"
     }
   }
+}
+
+variable "max_versions" {
+  type        = number
+  default     = 100
+  description = "Maximum versions of the secrets"
+}
+
+variable "delete_version_after" {
+  type        = number
+  default     = 604800
+  description = "Old secrets version will be deleted after this seconds"
 }
 
 variable "create_policy" {
@@ -113,8 +111,35 @@ variable "vault_policy" {
       EOF
     }
   }
-  description = "Policy to read Secrets by path"
+  description = "Policy to read Secrets in specific path"
 }
+
+
+
+## VAULT USERPASS
+variable "create_userpass" {
+  default     = false
+  type        = bool
+  description = "Authenticate with Username/Password"
+}
+
+variable "users_path" {
+  type = map(object({
+    path      = string
+    data_json = any
+  }))
+  default = {
+    "reader" = {
+      path      = "operations"
+      data_json = <<EOF
+        { "key1" : "value1" }
+      EOF
+    }
+  }
+  description = ""
+}
+
+
 
 ## Assumed Role
 variable "access_key" {
@@ -138,16 +163,16 @@ variable "create_aws_auth_backend" {
 variable "create_aws_secret_backend" {
   default     = false
   type        = bool
-  description = "Enable AWS Secret Backend or not in Vault"
+  description = "Enable AWS Secret Method or not in Vault"
 }
 
-variable "default_ttl" {
+variable "default_ttl_aws" {
   type        = number
   default     = 2700
   description = "Default Time To Live for Assumed role"
 }
 
-variable "max_ttl" {
+variable "max_ttl_aws" {
   type        = number
   default     = 3600
   description = "Maximum Time To Live for Assumed role"
@@ -192,7 +217,7 @@ variable "auth_backend_role" {
 variable "create_secret_backend_role" {
   type        = bool
   default     = true
-  description = "Enable a role on an AWS Secret Backend or not for Vault"
+  description = "Enable a role on an AWS Secret Method or not for Vault"
 }
 
 variable "secret_backend_role" {
@@ -203,15 +228,11 @@ variable "secret_backend_role" {
   default = {
     "ops" = {
       name      = "ops"
-      role_arns = ["arn:aws:iam::533322910785:role/automation-role"]
+      role_arns = ["arn:aws:iam::53332291231:role/automation-role"]
     },
     "qa" = {
       name      = "qa"
-      role_arns = ["arn:aws:iam::328647089605:role/automation-role"]
-    },
-    "stg" = {
-      name      = "stg"
-      role_arns = ["arn:aws:iam::193357654123:role/automation-role"]
+      role_arns = ["arn:aws:iam::328690889605:role/automation-role"]
     }
   }
   description = "If enabled, Create and use STS Assumed Role by Vault performing necessary actions respectively"
@@ -229,7 +250,9 @@ variable "region" {
   description = "Region that Vault residing"
 }
 
-## IAM User
+
+
+## AWS IAM User
 variable "access_key_user" {
   type        = string
   default     = ""
@@ -251,7 +274,7 @@ variable "create_aws_auth_backend_user" {
 variable "create_aws_secret_backend_user" {
   type        = bool
   default     = false
-  description = "Enable AWS Secret Backend or not for Vault"
+  description = "Enable AWS Secret Method or not for Vault"
 }
 
 variable "default_ttl_user" {
@@ -301,7 +324,7 @@ variable "auth_backend_role_user" { # If enabled, Role that is used by Vault aut
 variable "create_secret_backend_role_user" {
   type        = bool
   default     = false
-  description = "Enable a role on an AWS Secret Backend for Vault"
+  description = "Enable a role on an AWS Secret Method for Vault"
 }
 
 variable "secret_backend_role_user" {
@@ -342,29 +365,18 @@ variable "region_user" {
 }
 
 
+
 ## JWT
 variable "enabled_jwt_backend" {
   type        = bool
   default     = false
-  description = "Enable JWT Auth Backend or not"
+  description = "Enable JWT Auth Method or not"
 }
 
 variable "jwt_path" {
   type        = string
   default     = "jwt"
-  description = "JWT path"
-}
-
-variable "create_acc_role" {
-  type        = bool
-  default     = false
-  description = "Enable Account JWT Auth Backend Role or not"
-}
-
-variable "create_secret_role" {
-  type        = bool
-  default     = false
-  description = "Enable Secrets JWT Auth Backend Role or not"
+  description = "JWT Authentication path"
 }
 
 variable "bound_issuer" {
@@ -373,13 +385,22 @@ variable "bound_issuer" {
   description = "The value against which to match the iss claim in a JWT"
 }
 
-variable "acc_token_policies" {
-  type = list(string)
-  default = [
-    "ops",
-    "qa"
-  ]
-  description = "Accounts policy name"
+variable "default_ttl_jwt" {
+  type        = string
+  default     = "60m"
+  description = "Default Time To Live"
+}
+
+variable "max_ttl_jwt" {
+  type        = string
+  default     = "120m"
+  description = "Maximum Time To Live"
+}
+
+variable "create_acc_role" {
+  type        = bool
+  default     = false
+  description = "Enable Account JWT Auth Method Role or not"
 }
 
 variable "acc_bound_claims" {
@@ -395,13 +416,22 @@ variable "acc_bound_claims" {
       role_name = "value"
     }
   }
-  description = "JWT/OIDC auth backend role for AWS Account in a Vault server"
+  description = "JWT/OIDC auth Method role for AWS Account in a Vault server"
 }
 
-variable "secret_token_policies" {
-  type        = list(string)
-  default     = ["ops"]
-  description = "Secrets policy name"
+variable "acc_token_policies" {
+  type = list(string)
+  default = [
+    "ops",
+    "qa"
+  ]
+  description = "Accounts policy name"
+}
+
+variable "create_secret_role" {
+  type        = bool
+  default     = false
+  description = "Enable Secrets JWT Auth Method Role or not"
 }
 
 variable "secret_bound_claims" {
@@ -417,5 +447,14 @@ variable "secret_bound_claims" {
       role_name = "value"
     }
   }
-  description = "JWT/OIDC auth backend role for Secrets values in a Vault server"
+  description = "JWT/OIDC auth Method role for Secrets values in a Vault server"
+}
+
+variable "secret_token_policies" {
+  type = list(string)
+  default = [
+    "ops",
+    "qa"
+  ]
+  description = "Secrets policy name"
 }

@@ -3,7 +3,7 @@ terraform {
   required_providers {
     vault = {
       source  = "hashicorp/vault"
-      version = "3.6.0"
+      version = "3.12.0"
     }
   }
 
@@ -24,21 +24,26 @@ provider "vault" {
 module "vault" {
   # source                = "git::github.com/0opsops/terraform-vault-secmgmt.git?ref=v1.0.0" ## using specific tags
   # source                = "git::github.com/0opsops/terraform-vault-secmgmt.git"
-  source                = "0opsops/secmgmt/vault"
-  create_mountpath      = var.create_mountpath
-  vault_mount           = var.vault_mount
-  create_generic_secret = var.create_generic_secret
-  generic_secret        = var.generic_secret
-  create_policy         = var.create_policy
-  vault_policy          = var.vault_policy
+  source = "0opsops/secmgmt/vault"
+  # version               = "v1.0.0"
+  create_mountpath = var.create_mountpath
+  vault_mount      = var.vault_mount
+  create_kv_v2     = var.create_kv_v2
+  kv_v2            = var.kv_v2
+  create_policy    = var.create_policy
+  vault_policy     = var.vault_policy
+
+  ## VAULT USERPASS
+  create_userpass = var.create_userpass
+  users_path      = var.users_path
 
   ## Assume Role
   access_key                 = var.access_key
   secret_key                 = var.secret_key
   create_aws_auth_backend    = var.create_aws_auth_backend
   create_aws_secret_backend  = var.create_aws_secret_backend
-  default_ttl                = var.default_ttl
-  max_ttl                    = var.max_ttl
+  default_ttl_aws            = var.default_ttl_aws
+  max_ttl_aws                = var.max_ttl_aws
   aws_auth_path              = var.aws_auth_path
   aws_secret_path            = var.aws_secret_path
   create_auth_backend_role   = var.create_auth_backend_role
@@ -70,6 +75,8 @@ module "vault" {
   create_acc_role       = var.create_acc_role
   create_secret_role    = var.create_secret_role
   bound_issuer          = var.bound_issuer
+  default_ttl_jwt       = var.default_ttl_jwt
+  max_ttl_jwt           = var.max_ttl_jwt
   acc_token_policies    = var.acc_token_policies
   acc_bound_claims      = var.acc_bound_claims
   secret_token_policies = var.secret_token_policies

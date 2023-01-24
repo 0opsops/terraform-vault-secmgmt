@@ -17,6 +17,8 @@ vault_mount = {
   }
 }
 
+
+
 ## USERPASS
 create_userpass = true
 users_path = { # will create 2 users authenticating vault
@@ -40,10 +42,13 @@ users_path = { # will create 2 users authenticating vault
   }
 }
 
-create_generic_secret = true
-generic_secret = {
+
+
+## Secrets
+create_kv_v2 = true
+kv_v2 = {
   "qa" = {
-    path                = "qa/network"
+    sub_path            = "qa/network"
     disable_read        = false
     delete_all_versions = false
     data_json           = <<EOF
@@ -179,6 +184,78 @@ vault_policy = {
   }
 }
 
+
+
+## ASSUMED_ROLE USER
+access_key                = "KOASDJFKASERKLAJEASDF"
+secret_key                = "ASDFASzxcvfasrefawetafweaASDFAE"
+create_aws_auth_backend   = true
+aws_auth_path             = "aws"
+create_aws_secret_backend = true
+aws_secret_path           = "aws"
+create_auth_backend_role  = true
+auth_backend_role = {
+  "qa" = {
+    account_id = "987872910985"
+    sts_role   = "arn:aws:iam::987872910985:role/automation-role"
+  },
+  "uat" = {
+    account_id = "342412085405"
+    sts_role   = "arn:aws:iam::342412085405:role/automation-role"
+  },
+}
+create_secret_backend_role = true
+secret_backend_role = {
+  "qa" = {
+    name      = "qa"
+    role_arns = ["arn:aws:iam::987872910985:role/automation-role"]
+  },
+  "uat" = {
+    name      = "uat"
+    role_arns = ["arn:aws:iam::342412085405:role/automation-role"]
+  },
+}
+credential_type = "assumed_role"
+
+
+
+## AWS IAM USER
+access_key_user                = "ASDFASDFGSHDASDFAS?ERF"
+secret_key_user                = "asdfasda4afsefaw4awefaXEfaASDF"
+create_aws_auth_backend_user   = false
+aws_auth_path_user             = "account_b"
+create_aws_secret_backend_user = false
+aws_secret_path_user           = "account_b"
+create_auth_backend_role_user  = false
+auth_backend_role_user = {
+  "acc_b" = {
+    account_id = "967438773069"
+    sts_role   = "arn:aws:iam::967438773069:role/automation-role"
+  }
+}
+create_secret_backend_role_user = false
+secret_backend_role_user = {
+  "ec2-user" = {
+    name            = "ec2-user"
+    policy_document = <<EOT
+      {
+        "Version": "2012-10-17",
+        "Statement": [
+          {
+            "Effect": "Allow",
+            "Action": "ec2:*",
+            "Resource": "*"
+          }
+        ]
+      }
+    EOT
+  }
+}
+credential_type_user = "iam_user"
+
+
+
+## JWT
 enabled_jwt_backend = true
 jwt_path            = "jwt"
 create_acc_role     = true
@@ -226,71 +303,3 @@ secret_bound_claims = {
     }
   },
 }
-
-
-## ASSUMED_ROLE USER
-access_key                = "KOASDJFKASERKLAJEASDF"
-secret_key                = "ASDFASzxcvfasrefawetafweaASDFAE"
-create_aws_auth_backend   = true
-aws_auth_path             = "aws"
-create_aws_secret_backend = true
-aws_secret_path           = "aws"
-create_auth_backend_role  = true
-auth_backend_role = {
-  "qa" = {
-    account_id = "987632910785"
-    sts_role   = "arn:aws:iam::987632910785:role/automation-role"
-  },
-  "uat" = {
-    account_id = "342437089605"
-    sts_role   = "arn:aws:iam::342437089605:role/automation-role"
-  },
-}
-create_secret_backend_role = true
-secret_backend_role = {
-  "qa" = {
-    name      = "qa"
-    role_arns = ["arn:aws:iam::987632910785:role/automation-role"]
-  },
-  "uat" = {
-    name      = "uat"
-    role_arns = ["arn:aws:iam::342437089605:role/automation-role"]
-  },
-}
-credential_type = "assumed_role"
-
-
-
-## IAM USER
-access_key_user                = "ASDFASDFGSHDASDFAS?ERF"
-secret_key_user                = "asdfasda4afsefaw4awefaXEfaASDF"
-create_aws_auth_backend_user   = false
-aws_auth_path_user             = "account_b"
-create_aws_secret_backend_user = false
-aws_secret_path_user           = "account_b"
-create_auth_backend_role_user  = false
-auth_backend_role_user = {
-  "acc_b" = {
-    account_id = "967734273069"
-    sts_role   = "arn:aws:iam::967734273069:role/automation-role"
-  }
-}
-create_secret_backend_role_user = false
-secret_backend_role_user = {
-  "ec2-user" = {
-    name            = "ec2-user"
-    policy_document = <<EOT
-      {
-        "Version": "2012-10-17",
-        "Statement": [
-          {
-            "Effect": "Allow",
-            "Action": "ec2:*",
-            "Resource": "*"
-          }
-        ]
-      }
-    EOT
-  }
-}
-credential_type_user = "iam_user"
