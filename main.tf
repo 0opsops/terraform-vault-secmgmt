@@ -5,12 +5,19 @@ resource "vault_mount" "this" {
   description = each.value.description
 }
 
-resource "vault_generic_secret" "this" {
-  for_each            = { for k, v in var.generic_secret : k => v if var.create_generic_secret }
-  path                = each.value.path
-  data_json           = each.value.data_json
-  disable_read        = each.value.disable_read
+resource "vault_kv_secret_v2" "this" {
+  for_each            = { for k, v in var.kv_v2 : k => v if var.create_kv_v2 }
+  mount               = vault_mount.this[each.key].path
+  name                = each.value.sub_path
   delete_all_versions = each.value.delete_all_versions
+  disable_read        = each.value.disable_read
+  data_json           = each.value.data_json
+
+  custom_metadata {
+    max_versions         = var.max_versions
+    delete_version_after = var.delete_version_after
+  }
+
   depends_on = [
     vault_mount.this
   ]
@@ -50,8 +57,8 @@ resource "vault_aws_secret_backend" "this" {
   description               = "AWS secret engine for Gitlab pipeline!"
   access_key                = var.access_key
   secret_key                = var.secret_key
-  default_lease_ttl_seconds = var.default_ttl
-  max_lease_ttl_seconds     = var.max_ttl
+  default_lease_ttl_seconds = var.default_ttl_aws
+  max_lease_ttl_seconds     = var.max_ttl_aws
   path                      = var.aws_secret_path
   region                    = var.region
 }
@@ -111,8 +118,8 @@ resource "vault_jwt_auth_backend" "this" {
   bound_issuer = var.bound_issuer
   jwks_url     = "https://gitlab.com/-/jwks"
   tune {
-    default_lease_ttl  = "45m"
-    max_lease_ttl      = "1h"
+    default_lease_ttl  = var.default_ttl_jwt
+    max_lease_ttl      = var.max_ttl_jwt
     token_type         = "default-service"
     listing_visibility = "hidden"
   }

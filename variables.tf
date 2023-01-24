@@ -26,19 +26,31 @@ variable "users_path" {
   description = ""
 }
 
-variable "create_generic_secret" {
+variable "create_kv_v2" {
   type        = bool
-  description = "Enable Generic Secrets or not"
+  description = "Enable KV Version 2 Secrets or not"
 }
 
-variable "generic_secret" {
+variable "kv_v2" {
   type = map(object({
-    path                = string
+    sub_path            = string
     disable_read        = bool
     delete_all_versions = bool
     data_json           = any
   }))
   description = "Key/Value store"
+}
+
+variable "max_versions" {
+  type        = number
+  default     = 100
+  description = "Maximum versions of the secrets"
+}
+
+variable "delete_version_after" {
+  type        = number
+  default     = 604800
+  description = "Old secrets version will be deleted after this seconds"
 }
 
 variable "create_policy" {
@@ -81,14 +93,14 @@ variable "secret_key" {
   description = "AWS Assumed Role secret key"
 }
 
-variable "default_ttl" {
-  type        = number
-  default     = 2700
+variable "default_ttl_aws" {
+  type        = string
+  default     = 1800
   description = "Default Time To Live for Assumed role"
 }
 
-variable "max_ttl" {
-  type        = number
+variable "max_ttl_aws" {
+  type        = string
   default     = 3600
   description = "Maximum Time To Live for Assumed role"
 }
@@ -232,6 +244,18 @@ variable "jwt_path" {
 variable "bound_issuer" {
   type        = string
   description = "The value against which to match the iss claim in a JWT"
+}
+
+variable "default_ttl_jwt" {
+  type        = string
+  default     = "60m"
+  description = "Default Time To Live"
+}
+
+variable "max_ttl_jwt" {
+  type        = string
+  default     = "120m"
+  description = "Maximum Time To Live"
 }
 
 variable "create_acc_role" {
