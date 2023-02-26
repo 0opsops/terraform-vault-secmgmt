@@ -1,5 +1,5 @@
 terraform {
-  required_version = ">= v1.1.8"
+  required_version = ">= v1.3.9"
   required_providers {
     vault = {
       source  = "hashicorp/vault"

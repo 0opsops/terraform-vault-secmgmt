@@ -10,28 +10,20 @@ variable "token" {
   description = "Token to manage Vault"
 }
 
-## Secrets
-variable "create_mountpath" {
+## KV VERSION 2 SECRETS
+variable "create_kv_engine" {
   type        = bool
   default     = false
   description = "Enable KV-V2 secret engine path"
 }
 
-variable "vault_mount" {
-  type = map(object({
-    path        = string
-    type        = string
-    description = string
-  }))
-  default = {
-    "key" = {
-      description = "My Secrets"
-      path        = "default"
-      type        = "kv-v2"
-    }
-  }
+variable "kv_v2_path" {
+  type        = string
+  default     = "infra"
   description = "KV-V2 secret engine path"
 }
+
+
 
 variable "create_kv_v2" {
   type        = bool
@@ -141,7 +133,7 @@ variable "users_path" {
 
 
 
-## Assumed Role
+## ASSUMED_ROLE
 variable "access_key" {
   default     = ""
   type        = string
@@ -336,16 +328,16 @@ variable "secret_backend_role_user" {
     "ec2" = {
       name            = "ec2-user"
       policy_document = <<EOT
-      {
-      "Version": "2012-10-17",
-      "Statement": [
-          {
-          "Effect": "Allow",
-          "Action": "ec2:*",
-          "Resource": "*"
-          }
-      ]
-      }
+        {
+        "Version": "2012-10-17",
+        "Statement": [
+            {
+            "Effect": "Allow",
+            "Action": "ec2:*",
+            "Resource": "*"
+            }
+        ]
+        }
       EOT
     }
   }
@@ -458,3 +450,73 @@ variable "secret_token_policies" {
   ]
   description = "Secrets policy name"
 }
+
+## GITHUB JWT/OIDC
+variable "enabled_gh_jwt_backend" {
+  type        = bool
+  description = "Enable GitHub JWT Auth Method or not"
+}
+
+variable "gh_jwt_path" {
+  type        = string
+  default     = "github"
+  description = "GitHub JWT Authentication path"
+}
+
+variable "default_ttl_gh_jwt" {
+  type        = string
+  default     = "1h"
+  description = "Default Time To Live"
+}
+variable "max_ttl_gh_jwt" {
+  type        = string
+  default     = "2h"
+  description = "Maximum Time To Live"
+}
+
+variable "gh_jwt_token_type" {
+  type        = string
+  default     = "service"
+  description = "`service` token or `batch` token? Default is `service` token"
+}
+
+variable "gh_acc_bound_claims" {
+  type = map(object({
+    role_name     = string
+    bound_claims  = optional(map(string))
+    token_ttl     = number
+    token_max_ttl = number
+  }))
+  default = {
+    "key1" = {
+      bound_claims = {
+        "" = ""
+      }
+      role_name     = "value"
+      token_ttl     = 300
+      token_max_ttl = 600
+    }
+  }
+  description = "https://docs.github.com/en/actions/deployment/security-hardening-your-deployments/about-security-hardening-with-openid-connect#understanding-the-oidc-token"
+}
+
+variable "gh_acc_token_policies" {
+  type = list(string)
+  default = [
+    "default"
+  ]
+  description = "Policy name to read `Secrets` in path"
+}
+
+variable "gh_bound_aud" {
+  type        = list(string)
+  default     = ["https://github.com/OWNER"]
+  description = "URL of the repository owner, such as the organization that owns the repository. This is the only claim that can be customized"
+}
+
+variable "gh_bound_sub" {
+  type        = optional(string)
+  default     = ""
+  description = "Defines the subject claim that is to be validated by the cloud provider"
+}
+

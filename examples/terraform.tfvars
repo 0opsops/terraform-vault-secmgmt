@@ -1,56 +1,20 @@
 region = "us-east-1"
 
-# KV
-vault_addr       = "https://myvault.com"
-token            = "hvs.asdfasdASDFASDFZXCV"
-create_mountpath = true
-vault_mount = {
-  "qa" = {
-    path        = "qa"
-    type        = "kv-v2"
-    description = "QA VPC values"
-  },
-  "uat" = {
-    path        = "uat"
-    type        = "kv-v2"
-    description = "UAT VPC values"
-  }
-}
+# KV VERSION 2
+vault_addr = "https://myvault.com"
+token      = "hvs.asdfasdASDFASDFZXCV"
 
 
 
-## USERPASS
-create_userpass = true
-users_path = { # will create 2 users authenticating vault
-  "user" = {
-    data_json = <<EOT
-      {
-        "policies": ["reader"],
-        "password": "reader"
-      }
-    EOT
-    path      = "auth/userpass/users/reader"
-  },
-  "user2" = {
-    data_json = <<EOT
-      {
-        "policies": ["admin"],
-        "password": "admin"
-      }
-    EOT
-    path      = "auth/userpass/users/admin"
-  }
-}
-
-
-
-## Secrets
-create_kv_v2 = true
+## KV VERSION 2 SECRETS
+create_kv_engine = true
+kv_v2_path       = "infrastructure"
+create_kv_v2     = true
 kv_v2 = {
   "qa" = {
     sub_path            = "qa/network"
-    disable_read        = false
-    delete_all_versions = false
+    disable_read        = true
+    delete_all_versions = true
     data_json           = <<EOF
       {
       "availability_zones": [
@@ -90,8 +54,8 @@ kv_v2 = {
   },
   "uat" = {
     path                = "uat/network"
-    disable_read        = false
-    delete_all_versions = false
+    disable_read        = true
+    delete_all_versions = true
     data_json           = <<EOF
       {
       "availability_zones": [
@@ -130,6 +94,8 @@ kv_v2 = {
     EOF
   }
 }
+
+## VAULT POLICY
 create_policy = true
 vault_policy = {
   "qa" = {
@@ -168,7 +134,7 @@ vault_policy = {
       ## Reader Policy
       path "*"
       {
-        capabilities = ["read"]
+        capabilities = ["read","list"]
       }
     EOF
   },
@@ -181,6 +147,31 @@ vault_policy = {
         capabilities = ["create", "read", "update", "delete", "list", "sudo"]
       }
     EOF
+  }
+}
+
+
+
+## USERPASS
+create_userpass = true
+users_path = { # will create 2 users authenticating vault
+  "user" = {
+    data_json = <<EOT
+      {
+        "policies": ["reader"],
+        "password": "reader"
+      }
+    EOT
+    path      = "auth/userpass/users/reader"
+  },
+  "user2" = {
+    data_json = <<EOT
+      {
+        "policies": ["admin"],
+        "password": "admin"
+      }
+    EOT
+    path      = "auth/userpass/users/admin"
   }
 }
 
@@ -219,21 +210,22 @@ credential_type = "assumed_role"
 
 
 
+
 ## AWS IAM USER
 access_key_user                = "ASDFASDFGSHDASDFAS?ERF"
 secret_key_user                = "asdfasda4afsefaw4awefaXEfaASDF"
-create_aws_auth_backend_user   = false
+create_aws_auth_backend_user   = true
 aws_auth_path_user             = "account_b"
-create_aws_secret_backend_user = false
+create_aws_secret_backend_user = true
 aws_secret_path_user           = "account_b"
-create_auth_backend_role_user  = false
+create_auth_backend_role_user  = true
 auth_backend_role_user = {
   "acc_b" = {
     account_id = "967438773069"
     sts_role   = "arn:aws:iam::967438773069:role/automation-role"
   }
 }
-create_secret_backend_role_user = false
+create_secret_backend_role_user = true
 secret_backend_role_user = {
   "ec2-user" = {
     name            = "ec2-user"
@@ -252,17 +244,17 @@ secret_backend_role_user = {
   }
 }
 credential_type_user = "iam_user"
+region_user          = "us-east-1"
 
 
 
-## JWT
-enabled_jwt_backend = true
-jwt_path            = "jwt"
-create_acc_role     = true
-create_secret_role  = true
-acc_token_policies = [
-  "account_b",
-]
+## GITLAB JWT/OIDC
+enabled_gl_jwt_backend = true
+gl_jwt_path            = "jwt"
+bound_issuer           = "gitlab.com"
+gl_jwt_token_type      = "service"
+
+create_acc_role = true
 acc_bound_claims = {
   "qa" = {
     role_name = "qa"
@@ -281,10 +273,11 @@ acc_bound_claims = {
     }
   }
 }
-secret_token_policies = [
-  "qa",
-  "uat",
+acc_token_policies = [
+  "account_b"
 ]
+
+create_secret_role = true
 secret_bound_claims = {
   "uat-network-read" = {
     role_name = "uat-network-read"
@@ -301,5 +294,30 @@ secret_bound_claims = {
       "ref"        = "main,release/*"
       "ref_type"   = "branch"
     }
-  },
+  }
 }
+secret_token_policies = [
+  "qa",
+  "uat"
+]
+
+
+## GITHUB JWT/OIDC
+enabled_gh_jwt_backend = true
+gh_jwt_path            = "actions"
+gh_jwt_token_type      = "batch"
+
+create_gh_acc_role = true
+gh_acc_bound_claims = {
+  "key1" = {
+    bound_claims = {
+      "" = ""
+    }
+    role_name     = "value"
+    token_ttl     = 300
+    token_max_ttl = 600
+  }
+}
+
+gh_acc_token_policies = ["default"]
+gh_bound_aud          = ["https://github.com/0opsops"]
