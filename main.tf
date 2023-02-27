@@ -139,10 +139,10 @@ resource "vault_jwt_auth_backend" "this" {
 }
 
 resource "vault_jwt_auth_backend_role" "account" {
-  for_each          = { for k, v in var.acc_bound_claims : k => v if var.create_acc_role }
+  for_each          = { for k, v in var.gl_acc_bound_claims : k => v if var.create_gl_acc_role }
   backend           = try(element(vault_jwt_auth_backend.this.*.path, 0), "")
   role_name         = each.value.role_name
-  token_policies    = var.acc_token_policies
+  token_policies    = var.gl_acc_token_policies
   token_type        = var.gl_jwt_token_type
   bound_claims_type = each.value.bound_claims_type
   user_claim        = "user_email"
@@ -151,10 +151,10 @@ resource "vault_jwt_auth_backend_role" "account" {
 }
 
 resource "vault_jwt_auth_backend_role" "secret" {
-  for_each          = { for k, v in var.secret_bound_claims : k => v if var.create_secret_role }
+  for_each          = { for k, v in var.gl_secret_bound_claims : k => v if var.create_gl_secret_role }
   backend           = try(element(vault_jwt_auth_backend.this.*.path, 0), "")
   role_name         = each.value.role_name
-  token_policies    = var.secret_token_policies
+  token_policies    = var.gl_secret_token_policies
   token_type        = var.gl_jwt_token_type
   bound_claims_type = "glob"
   user_claim        = "user_email"
@@ -184,8 +184,24 @@ resource "vault_jwt_auth_backend_role" "actions" {
   backend           = try(element(vault_jwt_auth_backend.gh.*.path, 0), "")
   role_name         = each.value.role_name
   token_policies    = var.gh_acc_token_policies
-  bound_audiences   = var.gh_bound_aud
-  bound_subject     = var.gh_bound_sub
+  bound_audiences   = var.gh_acc_bound_aud
+  bound_subject     = var.gh_acc_bound_sub
+  token_type        = var.gh_jwt_token_type
+  bound_claims_type = "glob"
+  user_claim        = "actor"
+  role_type         = "jwt"
+  bound_claims      = each.value.bound_claims
+  token_ttl         = each.value.token_ttl
+  token_max_ttl     = each.value.token_max_ttl
+}
+
+resource "vault_jwt_auth_backend_role" "actions_sec" {
+  for_each          = { for k, v in var.gh_secret_bound_claims : k => v if var.create_gh_secret_role }
+  backend           = try(element(vault_jwt_auth_backend.gh.*.path, 0), "")
+  role_name         = each.value.role_name
+  token_policies    = var.gh_secret_token_policies
+  bound_audiences   = var.gh_secret_bound_aud
+  bound_subject     = var.gh_secret_bound_sub
   token_type        = var.gh_jwt_token_type
   bound_claims_type = "glob"
   user_claim        = "actor"

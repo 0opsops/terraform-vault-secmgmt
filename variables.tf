@@ -366,13 +366,12 @@ variable "gl_jwt_token_type" {
   description = "`service` token or `batch` token? Default is `service` token"
 }
 
-variable "create_acc_role" {
+variable "create_gl_acc_role" {
   type        = bool
-  default     = false
-  description = "Enable Account Role for GitLab JWT Auth Method"
+  description = "Enable Account Role for GitHub JWT Auth Method"
 }
 
-variable "acc_bound_claims" {
+variable "gl_acc_bound_claims" {
   type = map(object({
     role_name    = string
     bound_claims = map(string)
@@ -391,19 +390,18 @@ variable "acc_bound_claims" {
   description = "JWT/OIDC auth Method role for AWS Account in a Vault server"
 }
 
-variable "acc_token_policies" {
+variable "gl_acc_token_policies" {
   type        = list(string)
   default     = ["account_b"]
-  description = "AWS Accounts policy name"
+  description = "Vault policy name to attach on AWS Auth Method Role"
 }
 
-variable "create_secret_role" {
+variable "create_gl_secret_role" {
   type        = bool
-  default     = false
-  description = "Enable Secrets JWT Auth Method Role or not"
+  description = "For GitLab, Enable Secrets JWT Auth Method Role or not"
 }
 
-variable "secret_bound_claims" {
+variable "gl_secret_bound_claims" {
   type = map(object({
     role_name    = string
     bound_claims = map(string)
@@ -421,7 +419,7 @@ variable "secret_bound_claims" {
   description = "JWT/OIDC auth Method role for Secrets values in a Vault server"
 }
 
-variable "secret_token_policies" {
+variable "gl_secret_token_policies" {
   type        = list(string)
   default     = ["read-acc_b_creds"]
   description = "Secrets policy name"
@@ -487,16 +485,59 @@ variable "gh_acc_token_policies" {
   default = [
     "default"
   ]
-  description = "Policy name to read `Secrets` in path"
+  description = "Vault policy name to attach on AWS Auth Method Role"
 }
 
-variable "gh_bound_aud" {
+variable "gh_acc_bound_aud" {
   type        = list(string)
   default     = [""]
   description = "URL of the repository owner, eg: `https://github.com/OWNER`, such as the organization that owns the repository. This is the only claim that can be customized"
 }
 
-variable "gh_bound_sub" {
+variable "gh_acc_bound_sub" {
+  type        = string
+  default     = ""
+  description = "Defines the subject claim that is to be validated by the cloud provider"
+}
+
+variable "create_gh_secret_role" {
+  type        = bool
+  description = "For GHA, Enable Secrets JWT Auth Method Role or not"
+}
+
+variable "gh_secret_bound_claims" {
+  type = map(object({
+    role_name     = string
+    bound_claims  = optional(map(string))
+    token_ttl     = number
+    token_max_ttl = number
+  }))
+  default = {
+    "key" = {
+      bound_claims = {
+        "" = ""
+      }
+      role_name     = "value"
+      token_ttl     = 3600
+      token_max_ttl = 7200
+    }
+  }
+  description = "JWT/OIDC auth Method role for Secrets values in a Vault server"
+}
+
+variable "gh_secret_token_policies" {
+  type        = list(string)
+  default     = ["default"]
+  description = "Secrets policy name"
+}
+
+variable "gh_secret_bound_aud" {
+  type        = list(string)
+  default     = [""]
+  description = "URL of the repository owner, eg: `https://github.com/OWNER`, such as the organization that owns the repository. This is the only claim that can be customized"
+}
+
+variable "gh_secret_bound_sub" {
   type        = string
   default     = ""
   description = "Defines the subject claim that is to be validated by the cloud provider"

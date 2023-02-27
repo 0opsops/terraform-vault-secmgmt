@@ -87,13 +87,14 @@ module "vault" {
   max_ttl_gl_jwt         = var.max_ttl_gl_jwt
   gl_jwt_token_type      = var.gl_jwt_token_type
 
-  create_acc_role    = var.create_acc_role
-  acc_bound_claims   = var.acc_bound_claims
-  acc_token_policies = var.acc_token_policies
 
-  create_secret_role    = var.create_secret_role
-  secret_bound_claims   = var.secret_bound_claims
-  secret_token_policies = var.secret_token_policies
+  create_gl_acc_role    = var.create_gl_acc_role
+  gl_acc_bound_claims   = var.gl_acc_bound_claims
+  gl_acc_token_policies = var.gl_acc_token_policies
+
+  create_gl_secret_role    = var.create_gl_secret_role
+  gl_secret_bound_claims   = var.gl_secret_bound_claims
+  gl_secret_token_policies = var.gl_secret_token_policies
 
 
   ## GITHUB JWT/OIDC
@@ -103,10 +104,17 @@ module "vault" {
   max_ttl_gh_jwt         = var.max_ttl_gh_jwt
   gh_jwt_token_type      = var.gh_jwt_token_type
 
+
   create_gh_acc_role    = var.create_gh_acc_role
   gh_acc_bound_claims   = var.gh_acc_bound_claims
   gh_acc_token_policies = var.gh_acc_token_policies
-  gh_bound_aud          = var.gh_bound_aud
-  gh_bound_sub          = var.gh_bound_sub
+  gh_acc_bound_aud      = var.gh_acc_bound_aud
+  gh_acc_bound_sub      = var.gh_acc_bound_sub
+
+  create_gh_secret_role    = var.create_gh_secret_role
+  gh_secret_bound_claims   = var.gh_secret_bound_claims
+  gh_secret_token_policies = var.gh_secret_token_policies
+  gh_secret_bound_aud      = var.gh_secret_bound_aud
+  gh_secret_bound_sub      = var.gh_secret_bound_sub
 }
 

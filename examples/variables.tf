@@ -23,8 +23,6 @@ variable "kv_v2_path" {
   description = "KV-V2 secret engine path"
 }
 
-
-
 variable "create_kv_v2" {
   type        = bool
   default     = true
@@ -70,6 +68,8 @@ variable "delete_version_after" {
   description = "Old secrets version will be deleted after this seconds"
 }
 
+
+## VAULT POLICY
 variable "create_policy" {
   type        = bool
   default     = true
@@ -121,14 +121,17 @@ variable "users_path" {
     data_json = any
   }))
   default = {
-    "reader" = {
-      path      = "operations"
-      data_json = <<EOF
-        { "key1" : "value1" }
-      EOF
+    "user1" = {
+      data_json = <<EOT
+        {
+          "policies": ["POLICY"],
+          "password": "PASSWORD"
+        }
+      EOT
+      path      = "auth/userpass/users/USERNAME"
     }
   }
-  description = ""
+  description = "The full logical path with `username` suffix"
 }
 
 
@@ -137,13 +140,13 @@ variable "users_path" {
 variable "access_key" {
   default     = ""
   type        = string
-  description = "AWS access key"
+  description = "AWS access key of Assumed role user"
 }
 
 variable "secret_key" {
   default     = ""
   type        = string
-  description = "AWS secret key"
+  description = "AWS secret key of Assumed role user"
 }
 
 variable "create_aws_auth_backend" {
@@ -188,7 +191,7 @@ variable "create_auth_backend_role" {
   description = "Enable STS role or not for Vault"
 }
 
-variable "auth_backend_role" {
+variable "auth_backend_role" { # If enabled, Role that is used by Vault authenticating AWS!
   type = map(object({
     account_id = number
     sts_role   = string
@@ -299,7 +302,7 @@ variable "create_auth_backend_role_user" {
   description = "Enable STS role or not on Vault"
 }
 
-variable "auth_backend_role_user" { # If enabled, Role that is used by Vault authenticating AWS!
+variable "auth_backend_role_user" {
   type = map(object({
     account_id = number
     sts_role   = string
@@ -358,14 +361,14 @@ variable "region_user" {
 
 
 
-## JWT
-variable "enabled_jwt_backend" {
+## GITLAB JWT/OIDC
+variable "enabled_gl_jwt_backend" {
   type        = bool
   default     = false
   description = "Enable JWT Auth Method or not"
 }
 
-variable "jwt_path" {
+variable "gl_jwt_path" {
   type        = string
   default     = "jwt"
   description = "JWT Authentication path"
@@ -377,25 +380,31 @@ variable "bound_issuer" {
   description = "The value against which to match the iss claim in a JWT"
 }
 
-variable "default_ttl_jwt" {
+variable "default_ttl_gl_jwt" {
   type        = string
   default     = "60m"
   description = "Default Time To Live"
 }
 
-variable "max_ttl_jwt" {
+variable "max_ttl_gl_jwt" {
   type        = string
   default     = "120m"
   description = "Maximum Time To Live"
 }
 
-variable "create_acc_role" {
-  type        = bool
-  default     = false
-  description = "Enable Account JWT Auth Method Role or not"
+variable "gl_jwt_token_type" {
+  type        = string
+  default     = "service"
+  description = "`service` token or `batch` token? Default is `service` token"
 }
 
-variable "acc_bound_claims" {
+variable "create_gl_acc_role" {
+  type        = bool
+  default     = false
+  description = "Enable Account Role for GitLab JWT Auth Method"
+}
+
+variable "gl_acc_bound_claims" {
   type = map(object({
     role_name    = string
     bound_claims = map(string)
@@ -411,22 +420,22 @@ variable "acc_bound_claims" {
   description = "JWT/OIDC auth Method role for AWS Account in a Vault server"
 }
 
-variable "acc_token_policies" {
+variable "gl_acc_token_policies" {
   type = list(string)
   default = [
     "ops",
     "qa"
   ]
-  description = "Accounts policy name"
+  description = "Vault policy name to attach on AWS Auth Method Role"
 }
 
-variable "create_secret_role" {
+variable "create_gl_secret_role" {
   type        = bool
   default     = false
-  description = "Enable Secrets JWT Auth Method Role or not"
+  description = "For GitLab, Enable Secrets JWT Auth Method Role or not"
 }
 
-variable "secret_bound_claims" {
+variable "gl_secret_bound_claims" {
   type = map(object({
     role_name    = string
     bound_claims = map(string)
@@ -442,7 +451,7 @@ variable "secret_bound_claims" {
   description = "JWT/OIDC auth Method role for Secrets values in a Vault server"
 }
 
-variable "secret_token_policies" {
+variable "gl_secret_token_policies" {
   type = list(string)
   default = [
     "ops",
@@ -480,6 +489,11 @@ variable "gh_jwt_token_type" {
   description = "`service` token or `batch` token? Default is `service` token"
 }
 
+variable "create_gh_acc_role" {
+  type        = bool
+  description = "Enable Account Role for GitHub JWT Auth Method"
+}
+
 variable "gh_acc_bound_claims" {
   type = map(object({
     role_name     = string
@@ -505,18 +519,60 @@ variable "gh_acc_token_policies" {
   default = [
     "default"
   ]
-  description = "Policy name to read `Secrets` in path"
+  description = "Vault policy name to attach on AWS Auth Method Role"
 }
 
-variable "gh_bound_aud" {
+variable "gh_acc_bound_aud" {
   type        = list(string)
   default     = ["https://github.com/OWNER"]
   description = "URL of the repository owner, such as the organization that owns the repository. This is the only claim that can be customized"
 }
 
-variable "gh_bound_sub" {
+variable "gh_acc_bound_sub" {
   type        = optional(string)
   default     = ""
   description = "Defines the subject claim that is to be validated by the cloud provider"
 }
 
+variable "create_gh_secret_role" {
+  type        = bool
+  description = "For GHA, Enable Secrets JWT Auth Method Role or not"
+}
+
+variable "gh_secret_bound_claims" {
+  type = map(object({
+    role_name     = string
+    bound_claims  = optional(map(string))
+    token_ttl     = number
+    token_max_ttl = number
+  }))
+  default = {
+    "key" = {
+      bound_claims = {
+        "" = ""
+      }
+      role_name     = "value"
+      token_ttl     = 3600
+      token_max_ttl = 7200
+    }
+  }
+  description = "JWT/OIDC auth Method role for Secrets values in a Vault server"
+}
+
+variable "gh_secret_token_policies" {
+  type        = list(string)
+  default     = ["default"]
+  description = "Secrets policy name"
+}
+
+variable "gh_secret_bound_aud" {
+  type        = list(string)
+  default     = [""]
+  description = "URL of the repository owner, eg: `https://github.com/OWNER`, such as the organization that owns the repository. This is the only claim that can be customized"
+}
+
+variable "gh_secret_bound_sub" {
+  type        = string
+  default     = ""
+  description = "Defines the subject claim that is to be validated by the cloud provider"
+}
