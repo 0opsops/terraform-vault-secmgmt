@@ -333,13 +333,12 @@ variable "credential_type_user" {
 ## GITLAB JWT
 variable "enabled_gl_jwt_backend" {
   type        = bool
-  default     = false
   description = "Enable GitLab JWT Auth Method or not"
 }
 
 variable "gl_jwt_path" {
   type        = string
-  default     = "jwt"
+  default     = "jwt-gl"
   description = "GitLab JWT Authentication path"
 }
 
@@ -436,7 +435,7 @@ variable "enabled_gh_jwt_backend" {
 
 variable "gh_jwt_path" {
   type        = string
-  default     = "github"
+  default     = "jwt-gh"
   description = "GitHub JWT Authentication path"
 }
 
