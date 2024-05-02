@@ -210,3 +210,39 @@ resource "vault_jwt_auth_backend_role" "actions_sec" {
   token_ttl         = each.value.token_ttl
   token_max_ttl     = each.value.token_max_ttl
 }
+
+
+
+## KUBERNETES
+resource "vault_auth_backend" "kubernetes" {
+  for_each    = { for k, v in var.k8s_path : k => v if var.create_k8s }
+  type        = "kubernetes"
+  path        = each.value.path
+  description = "Login with Kubernetes Service Account"
+}
+
+resource "vault_kubernetes_auth_backend_role" "kubernetes" {
+  for_each                         = { for k, v in var.k8s_role : k => v if var.create_k8s }
+  backend                          = each.value.backend
+  role_name                        = each.value.role_name
+  bound_service_account_names      = each.value.bound_service_account_names
+  bound_service_account_namespaces = each.value.bound_service_account_namespaces
+  token_policies                   = each.value.token_policies
+  token_explicit_max_ttl           = 0
+  token_max_ttl                    = 0
+  token_ttl                        = 3600
+  token_type                       = "default"
+  depends_on                       = [vault_auth_backend.kubernetes]
+}
+
+resource "vault_kubernetes_auth_backend_config" "kubernetes" {
+  for_each               = { for k, v in var.k8s_config : k => v if var.create_k8s }
+  backend                = each.value.backend
+  kubernetes_host        = each.value.kubernetes_host
+  kubernetes_ca_cert     = each.value.kubernetes_ca_cert
+  token_reviewer_jwt     = each.value.token_reviewer_jwt
+  issuer                 = each.value.issuer
+  disable_iss_validation = "true"
+  depends_on             = [vault_auth_backend.kubernetes]
+}
+

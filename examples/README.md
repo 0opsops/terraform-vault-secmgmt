@@ -5,3 +5,4 @@
 ## In `Account B`, create a role called `automation-role` with necessary permission policy attached
 
 ![Usage-overview](1.png "It's gonna be alright!")
+![Usage-overview](2.png "It's gonna be alright!")

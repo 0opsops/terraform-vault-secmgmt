@@ -1,20 +1,21 @@
 # Managing HashiCorp Vault Secrets with **Terraform**
 
-## Multi AWS accounts `assumed_role` and Generating `IAM Users` for CI/CD purpose on the top of pre-existing Vault!
-## [Just like this!](https://github.com/0opsops/terraform-vault-secmgmt/tree/main/examples#in-account-b-create-a-role-called-automation-role-with-necessary-permission-policy-attached)
+## Multi Kubernetes clusters authentication and Multi AWS accounts `assumed_role` and Generating `IAM Users` for CI/CD purpose on the top of pre-existing Vault!
+## [Just like this!](https://github.com/0opsops/terraform-vault-secmgmt/tree/main/examples#senario-brief)
 
 ### Auth Methods
 
 - AWS
 - JWT (GitLab, GitHub)
 - USERPASS
+- KUBERNETES
 
 ### Secrets Engines
 
 - KV-V2
 - AWS
 
-## THIS MODULE DOWNSIDE IS ALL SECRETS VALUES WOULD BE INSIDE `TERRAFORM.TFVARS` THAT AIN'T PRETTY GOOD AND REALLY HARD MANAGING SECRETS IN LARGE SCALE!
+## THIS MODULE DOWNSIDE IS ALL SECRETS VALUES WOULD BE INSIDE `TERRAFORM.TFVARS` THAT AIN'T PRETTY GOOD AND REALLY HARD MANAGING SECRETS IN LARGE SCALE! (WELL.... WHATEVER... YOU KNOW VERY WELL WHAT YOU DOING!)
 
 ________________________________________________________________
 
@@ -22,14 +23,14 @@ ________________________________________________________________
 
 | Name | Version |
 |------|---------|
-| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= v1.3.9 |
-| <a name="requirement_vault"></a> [vault](#requirement\_vault) | >= 3.12.0 |
+| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= v1.6.5 |
+| <a name="requirement_vault"></a> [vault](#requirement\_vault) | >= 4.2.0 |
 
 ## Providers
 
 | Name | Version |
 |------|---------|
-| <a name="provider_vault"></a> [vault](#provider\_vault) | >= 3.12.0 |
+| <a name="provider_vault"></a> [vault](#provider\_vault) | >= 4.2.0 |
 
 ## Modules
 
@@ -39,6 +40,7 @@ No modules.
 
 | Name | Type |
 |------|------|
+| [vault_auth_backend.kubernetes](https://registry.terraform.io/providers/hashicorp/vault/latest/docs/resources/auth_backend) | resource |
 | [vault_auth_backend.this](https://registry.terraform.io/providers/hashicorp/vault/latest/docs/resources/auth_backend) | resource |
 | [vault_auth_backend.user](https://registry.terraform.io/providers/hashicorp/vault/latest/docs/resources/auth_backend) | resource |
 | [vault_auth_backend.userpass](https://registry.terraform.io/providers/hashicorp/vault/latest/docs/resources/auth_backend) | resource |
@@ -55,6 +57,8 @@ No modules.
 | [vault_jwt_auth_backend_role.actions](https://registry.terraform.io/providers/hashicorp/vault/latest/docs/resources/jwt_auth_backend_role) | resource |
 | [vault_jwt_auth_backend_role.actions_sec](https://registry.terraform.io/providers/hashicorp/vault/latest/docs/resources/jwt_auth_backend_role) | resource |
 | [vault_jwt_auth_backend_role.secret](https://registry.terraform.io/providers/hashicorp/vault/latest/docs/resources/jwt_auth_backend_role) | resource |
+| [vault_kubernetes_auth_backend_config.kubernetes](https://registry.terraform.io/providers/hashicorp/vault/latest/docs/resources/kubernetes_auth_backend_config) | resource |
+| [vault_kubernetes_auth_backend_role.kubernetes](https://registry.terraform.io/providers/hashicorp/vault/latest/docs/resources/kubernetes_auth_backend_role) | resource |
 | [vault_kv_secret_v2.this](https://registry.terraform.io/providers/hashicorp/vault/latest/docs/resources/kv_secret_v2) | resource |
 | [vault_mount.this](https://registry.terraform.io/providers/hashicorp/vault/latest/docs/resources/mount) | resource |
 | [vault_policy.this](https://registry.terraform.io/providers/hashicorp/vault/latest/docs/resources/policy) | resource |
@@ -82,6 +86,7 @@ No modules.
 | <a name="input_create_gh_secret_role"></a> [create\_gh\_secret\_role](#input\_create\_gh\_secret\_role) | For GHA, Enable Secrets JWT Auth Method Role or not | `bool` | n/a | yes |
 | <a name="input_create_gl_acc_role"></a> [create\_gl\_acc\_role](#input\_create\_gl\_acc\_role) | Enable Account Role for GitHub JWT Auth Method | `bool` | n/a | yes |
 | <a name="input_create_gl_secret_role"></a> [create\_gl\_secret\_role](#input\_create\_gl\_secret\_role) | For GitLab, Enable Secrets JWT Auth Method Role or not | `bool` | n/a | yes |
+| <a name="input_create_k8s"></a> [create\_k8s](#input\_create\_k8s) | Enable Kubernetes Auth Method or not | `bool` | n/a | yes |
 | <a name="input_create_kv_engine"></a> [create\_kv\_engine](#input\_create\_kv\_engine) | Enable KV version 2 secret engine | `bool` | n/a | yes |
 | <a name="input_create_kv_v2"></a> [create\_kv\_v2](#input\_create\_kv\_v2) | Create KV Version 2 Secrets | `bool` | n/a | yes |
 | <a name="input_create_policy"></a> [create\_policy](#input\_create\_policy) | Enable Vault policy or not | `bool` | n/a | yes |
@@ -113,6 +118,9 @@ No modules.
 | <a name="input_gl_jwt_token_type"></a> [gl\_jwt\_token\_type](#input\_gl\_jwt\_token\_type) | `service` token or `batch` token? Default is `service` token | `string` | `"service"` | no |
 | <a name="input_gl_secret_bound_claims"></a> [gl\_secret\_bound\_claims](#input\_gl\_secret\_bound\_claims) | JWT/OIDC auth Method role for Secrets values in a Vault server | <pre>map(object({<br>    role_name    = string<br>    bound_claims = map(string)<br>  }))</pre> | <pre>{<br>  "key": {<br>    "bound_claims": {<br>      "project_id": "123123",<br>      "ref": "main,develop",<br>      "ref_type": "branch"<br>    },<br>    "role_name": "reader-role"<br>  }<br>}</pre> | no |
 | <a name="input_gl_secret_token_policies"></a> [gl\_secret\_token\_policies](#input\_gl\_secret\_token\_policies) | Secrets policy name | `list(string)` | <pre>[<br>  "read-acc_b_creds"<br>]</pre> | no |
+| <a name="input_k8s_config"></a> [k8s\_config](#input\_k8s\_config) | Kubernetes Auth Backend configuration | <pre>map(object({<br>    backend            = string<br>    kubernetes_host    = string<br>    kubernetes_ca_cert = string<br>    token_reviewer_jwt = string<br>    issuer             = string<br>  }))</pre> | <pre>{<br>  "dev-k8s": {<br>    "backend": "dev-k8s",<br>    "issuer": "https://kubernetes.default.svc.cluster.local",<br>    "kubernetes_ca_cert": "-----BEGIN CERTIFICATE-----\nASDFQWERQWERASDFASDQ@#RDFADFASDF\n-----END CERTIFICATE-----",<br>    "kubernetes_host": "https://DEV_K8S_IP:6443",<br>    "token_reviewer_jwt": "eyJhbGciOiJSUzI1NiIJASiadura56tIsImtpZCI6InRreml3.ASDFASOIDJFASDKLFLASDF"<br>  }<br>}</pre> | no |
+| <a name="input_k8s_path"></a> [k8s\_path](#input\_k8s\_path) | Kubernetes Authentication path (Support multi clusters with different paths) | <pre>map(object({<br>    path = string<br>  }))</pre> | <pre>{<br>  "dev-k8s": {<br>    "path": "dev-k8s"<br>  }<br>}</pre> | no |
+| <a name="input_k8s_role"></a> [k8s\_role](#input\_k8s\_role) | Kubernetes role to authenticate Vault | <pre>map(object({<br>    role_name                        = string<br>    backend                          = string<br>    bound_service_account_names      = list(string)<br>    bound_service_account_namespaces = list(string)<br>    token_policies                   = list(string)<br>  }))</pre> | <pre>{<br>  "dev-k8s": {<br>    "backend": "dev-k8s",<br>    "bound_service_account_names": [<br>      "dev-k8s"<br>    ],<br>    "bound_service_account_namespaces": [<br>      "default"<br>    ],<br>    "role_name": "dev-k8s",<br>    "token_policies": [<br>      "default"<br>    ]<br>  }<br>}</pre> | no |
 | <a name="input_kv_v2"></a> [kv\_v2](#input\_kv\_v2) | Key/Value store | <pre>map(object({<br>    sub_path            = string<br>    disable_read        = bool<br>    delete_all_versions = bool<br>    data_json           = any<br>  }))</pre> | <pre>{<br>  "key1": {<br>    "data_json": "        {\n          \"key1\": \"value1\"\n        }\n",<br>    "delete_all_versions": true,<br>    "disable_read": false,<br>    "sub_path": "path1"<br>  },<br>  "key2": {<br>    "data_json": "        {\n          \"key2\": \"value2\"\n        }\n",<br>    "delete_all_versions": true,<br>    "disable_read": false,<br>    "sub_path": "path2"<br>  }<br>}</pre> | no |
 | <a name="input_kv_v2_description"></a> [kv\_v2\_description](#input\_kv\_v2\_description) | Just a description | `string` | `"Mount path of KV-V2 secret engine"` | no |
 | <a name="input_kv_v2_path"></a> [kv\_v2\_path](#input\_kv\_v2\_path) | KV-V2 secret engine path | `string` | `"infra"` | no |

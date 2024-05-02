@@ -7,7 +7,7 @@ variable "vault_addr" {
 variable "token" {
   type        = string
   default     = ""
-  description = "Token to manage Vault"
+  description = "`root or admin` Token to manage Vault"
 }
 
 ## KV VERSION 2 SECRETS
@@ -576,3 +576,64 @@ variable "gh_secret_bound_sub" {
   default     = ""
   description = "Defines the subject claim that is to be validated by the cloud provider"
 }
+
+
+
+## KUBERNETES
+variable "create_k8s" {
+  type        = bool
+  description = "Enable Kubernetes Auth Method or not"
+}
+
+variable "k8s_path" {
+  type = map(object({
+    path = string
+  }))
+  default = {
+    "dev-k8s" = {
+      path = "dev-k8s"
+    }
+  }
+  description = "Kubernetes Authentication path (Support multi clusters with different paths)"
+}
+
+variable "k8s_role" {
+  type = map(object({
+    role_name                        = string
+    backend                          = string
+    bound_service_account_names      = list(string)
+    bound_service_account_namespaces = list(string)
+    token_policies                   = list(string)
+  }))
+  default = {
+    "dev-k8s" = {
+      role_name                        = "dev-k8s"
+      backend                          = "dev-k8s"
+      bound_service_account_names      = ["dev-k8s"]
+      bound_service_account_namespaces = ["default"]
+      token_policies                   = ["default"]
+    }
+  }
+  description = "Kubernetes role to authenticate Vault"
+}
+
+variable "k8s_config" {
+  type = map(object({
+    backend            = string
+    kubernetes_host    = string
+    kubernetes_ca_cert = string
+    token_reviewer_jwt = string
+    issuer             = string
+  }))
+  default = {
+    "dev-k8s" = {
+      backend            = "dev-k8s"
+      kubernetes_host    = "https://DEV_K8S_IP:6443"                                                                  # K8S_CLUSTER_ENDPOINT OR PROXY_ENDPOINT
+      kubernetes_ca_cert = "-----BEGIN CERTIFICATE-----\nASDFQWERQWERASDFASDQ@#RDFADFASDF\n-----END CERTIFICATE-----" # SERVER_CA.crt
+      token_reviewer_jwt = "eyJhbGciOiJSUzI1NiIJASiadura56tIsImtpZCI6InRreml3.ASDFASOIDJFASDKLFLASDF"                 # SERVICE_ACCOUNT_TOKEN
+      issuer             = "https://kubernetes.default.svc.cluster.local"
+    }
+  }
+  description = "Kubernetes Auth Backend configuration"
+}
+

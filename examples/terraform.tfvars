@@ -254,8 +254,8 @@ gl_jwt_path            = "jwt"
 bound_issuer           = "gitlab.com"
 gl_jwt_token_type      = "service"
 
-create_acc_role = true
-acc_bound_claims = {
+create_gl_acc_role = true
+gl_acc_bound_claims = {
   "qa" = {
     role_name = "qa"
     bound_claims = {
@@ -273,12 +273,12 @@ acc_bound_claims = {
     }
   }
 }
-acc_token_policies = [
+gl_acc_token_policies = [
   "account_b"
 ]
 
-create_secret_role = true
-secret_bound_claims = {
+create_gl_secret_role = true
+gl_secret_bound_claims = {
   "uat-network-read" = {
     role_name = "uat-network-read"
     bound_claims = {
@@ -296,10 +296,12 @@ secret_bound_claims = {
     }
   }
 }
-secret_token_policies = [
+gl_secret_token_policies = [
   "qa",
   "uat"
 ]
+
+
 
 
 ## GITHUB JWT/OIDC
@@ -320,4 +322,52 @@ gh_acc_bound_claims = {
 }
 
 gh_acc_token_policies = ["default"]
-gh_bound_aud          = ["https://github.com/0opsops"]
+gh_acc_bound_aud      = ["https://github.com/0opsops"]
+create_gh_secret_role = false
+
+
+
+
+## KUBERNETES
+create_k8s = true
+k8s_path = {
+  "dev-k8s" = {
+    path = "dev-k8s"
+  },
+  "prod-k8s" = {
+    path = "prod-k8s"
+  }
+}
+k8s_role = {
+  "dev-k8s" = {
+    role_name                        = "dev-k8s"
+    backend                          = "dev-k8s"
+    bound_service_account_names      = ["dev-k8s"]
+    bound_service_account_namespaces = ["default"]
+    token_policies                   = ["default"]
+  },
+  "prod-k8s" = {
+    role_name                        = "prod-k8s"
+    backend                          = "prod-k8s"
+    bound_service_account_names      = ["prod-k8s"]
+    bound_service_account_namespaces = ["default"]
+    token_policies                   = ["default"]
+  }
+}
+k8s_config = {
+  "dev-k8s" = {
+    backend            = "dev-k8s"
+    kubernetes_host    = "https://DEV_K8S_IP:6443"
+    kubernetes_ca_cert = "-----BEGIN CERTIFICATE-----\nASDFQWERQWERASDFASDQ@#RDFADFASDF\n-----END CERTIFICATE-----" # SERVER_CA.crt
+    token_reviewer_jwt = "eyJhbGciOiJSUzI1NiIJASiadura56tIsImtpZCI6InRreml3.ASDFASOIDJFASDKLFLASDF"                 # SERVICE_ACCOUNT_TOKEN
+    issuer             = "https://kubernetes.default.svc.cluster.local"
+  },
+  "prod-k8s" = {
+    backend            = "prod-k8s"
+    kubernetes_host    = "https://PROD_K8S_IP:6443"                                                                 # K8S_CLUSTER_ENDPOINT OR PROXY_ENDPOINT
+    kubernetes_ca_cert = "-----BEGIN CERTIFICATE-----\nASDFQWERQWERASDFASDQ@#RDFADFASDF\n-----END CERTIFICATE-----" # SERVER_CA.crt
+    token_reviewer_jwt = "eyJhbGciOiJSUzI1NiIJASiadura56tIsImtpZCI6InRreml3.ASDFASOIDJFASDKLFLASDF"                 # SERVICE_ACCOUNT_TOKEN
+    issuer             = "https://kubernetes.default.svc.cluster.local"
+  }
+}
+

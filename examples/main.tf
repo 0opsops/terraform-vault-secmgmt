@@ -24,7 +24,8 @@ provider "vault" {
 module "vault" {
   # source                = "git::github.com/0opsops/terraform-vault-secmgmt.git?ref=v1.0.0" ## using specific tags
   # source                = "git::github.com/0opsops/terraform-vault-secmgmt.git"   ## latest
-  source  = "0opsops/secmgmt/vault"
+  source = "../"
+  # source  = "0opsops/secmgmt/vault"
   version = "v3.0.0"
 
 
@@ -116,5 +117,11 @@ module "vault" {
   gh_secret_token_policies = var.gh_secret_token_policies
   gh_secret_bound_aud      = var.gh_secret_bound_aud
   gh_secret_bound_sub      = var.gh_secret_bound_sub
+
+  ## KUBERNETES
+  create_k8s = va.create_k8s
+  k8s_path   = var.k8s_path
+  k8s_role   = var.k8s_role
+  k8s_config = var.k8s_config
 }
 
