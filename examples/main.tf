@@ -118,7 +118,7 @@ module "vault" {
   gh_secret_bound_sub      = var.gh_secret_bound_sub
 
   ## KUBERNETES
-  create_k8s = va.create_k8s
+  create_k8s = var.create_k8s
   k8s_path   = var.k8s_path
   k8s_role   = var.k8s_role
   k8s_config = var.k8s_config
