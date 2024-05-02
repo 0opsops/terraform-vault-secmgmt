@@ -529,7 +529,7 @@ variable "gh_acc_bound_aud" {
 }
 
 variable "gh_acc_bound_sub" {
-  type        = optional(string)
+  type        = string
   default     = ""
   description = "Defines the subject claim that is to be validated by the cloud provider"
 }
