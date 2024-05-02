@@ -24,8 +24,7 @@ provider "vault" {
 module "vault" {
   # source                = "git::github.com/0opsops/terraform-vault-secmgmt.git?ref=v1.0.0" ## using specific tags
   # source                = "git::github.com/0opsops/terraform-vault-secmgmt.git"   ## latest
-  source = "../"
-  # source  = "0opsops/secmgmt/vault"
+  source  = "0opsops/secmgmt/vault"
   version = "v3.0.0"
 
 
