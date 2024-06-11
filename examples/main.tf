@@ -25,7 +25,7 @@ module "vault" {
   # source                = "git::github.com/0opsops/terraform-vault-secmgmt.git?ref=v1.0.0" ## using specific tags
   # source                = "git::github.com/0opsops/terraform-vault-secmgmt.git"   ## latest
   source  = "0opsops/secmgmt/vault"
-  version = "v3.9.0"
+  version = "v3.9.5"
 
 
   ## KV VERSION 2 SECRETS

@@ -683,7 +683,7 @@ variable "oidc_identity_group_policies" {
 }
 variable "oidc_token_type" {
   type        = string
-  default     = "default-service"
+  default     = "service"
   description = "OIDC token type"
 }
 variable "tags" {

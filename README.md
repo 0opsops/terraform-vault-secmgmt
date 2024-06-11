@@ -147,7 +147,7 @@ No modules.
 | <a name="input_oidc_role"></a> [oidc\_role](#input\_oidc\_role) | OIDC role | `string` | `"reader"` | no |
 | <a name="input_oidc_scopes"></a> [oidc\_scopes](#input\_oidc\_scopes) | A list of OIDC scopes to be used with an OIDC role | `list(string)` | <pre>[<br>  "openid"<br>]</pre> | no |
 | <a name="input_oidc_token_policies"></a> [oidc\_token\_policies](#input\_oidc\_token\_policies) | A list of policies to encode onto generated tokens for OIDC (create it first unless existing) | `list(string)` | <pre>[<br>  "reader"<br>]</pre> | no |
-| <a name="input_oidc_token_type"></a> [oidc\_token\_type](#input\_oidc\_token\_type) | OIDC token type | `string` | `"default-service"` | no |
+| <a name="input_oidc_token_type"></a> [oidc\_token\_type](#input\_oidc\_token\_type) | OIDC token type | `string` | `"service"` | no |
 | <a name="input_region"></a> [region](#input\_region) | Region that Vault residing | `string` | `"us-east-1"` | no |
 | <a name="input_region_user"></a> [region\_user](#input\_region\_user) | Region that Vault residing | `string` | `"us-east-1"` | no |
 | <a name="input_secret_backend_role"></a> [secret\_backend\_role](#input\_secret\_backend\_role) | Create and use STS Assumed Role by Vault performing necessary actions respectively | <pre>map(object({<br>    name      = string<br>    role_arns = list(string)<br>  }))</pre> | <pre>{<br>  "key": {<br>    "name": "aws",<br>    "role_arns": [<br>      "arn:aws:iam::123456789012:role/ROLE_NAME"<br>    ]<br>  }<br>}</pre> | no |

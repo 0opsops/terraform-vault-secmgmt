@@ -262,6 +262,7 @@ resource "vault_jwt_auth_backend" "oidc" {
 }
 
 resource "vault_jwt_auth_backend_role" "oidc" {
+  count                        = var.enabled_oidc_backend ? 1 : 0
   role_name                    = var.oidc_role
   backend                      = try(element(vault_jwt_auth_backend.oidc.*.path, 0), "")
   user_claim                   = "email"
@@ -276,6 +277,7 @@ resource "vault_jwt_auth_backend_role" "oidc" {
 }
 
 resource "vault_identity_group" "oidc" {
+  count                     = var.enabled_oidc_backend ? 1 : 0
   name                      = var.oidc_identity_group_name
   type                      = var.oidc_identity_type
   policies                  = var.oidc_identity_group_policies
@@ -285,7 +287,8 @@ resource "vault_identity_group" "oidc" {
 }
 
 resource "vault_identity_group_alias" "oidc" {
+  count          = var.enabled_oidc_backend ? 1 : 0
   name           = var.group_alias_name
   mount_accessor = try(element(vault_jwt_auth_backend.oidc.*.accessor, 0), "")
-  canonical_id   = vault_identity_group.oidc.id
+  canonical_id   = try(element(vault_identity_group.oidc.*.id, 0), "")
 }
