@@ -692,7 +692,7 @@ variable "tags" {
     "Organization" = "OSS"
   }
   validation {
-    condition     = can(var.metadata["Organization"])
+    condition     = can(var.tags["Organization"])
     error_message = "At least `Organization` tag is required!"
   }
   description = "Tag what it is about"
