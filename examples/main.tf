@@ -25,7 +25,7 @@ module "vault" {
   # source                = "git::github.com/0opsops/terraform-vault-secmgmt.git?ref=v1.0.0" ## using specific tags
   # source                = "git::github.com/0opsops/terraform-vault-secmgmt.git"   ## latest
   source  = "0opsops/secmgmt/vault"
-  version = "v3.8.1"
+  version = "v3.9.0"
 
 
   ## KV VERSION 2 SECRETS
@@ -122,5 +122,14 @@ module "vault" {
   k8s_path   = var.k8s_path
   k8s_role   = var.k8s_role
   k8s_config = var.k8s_config
+
+  ## OIDC
+  enabled_oidc_backend = var.enabled_oidc_backend
+  oidc_discovery_url   = var.oidc_discovery_url
+  oidc_client_id       = var.oidc_client_id
+  oidc_client_sec      = var.oidc_client_sec
+  oidc_identity_type   = var.oidc_identity_type
+  oidc_scopes          = var.oidc_scopes
+  tags                 = var.tags
 }
 

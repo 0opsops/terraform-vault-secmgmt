@@ -5,9 +5,10 @@
 
 ### Auth Methods
 
+- USERPASS (UI)
+- OIDC (UI)
 - AWS
 - JWT (GitLab, GitHub)
-- USERPASS
 - KUBERNETES
 
 ### Secrets Engines
@@ -51,11 +52,15 @@ No modules.
 | [vault_aws_secret_backend_role.this](https://registry.terraform.io/providers/hashicorp/vault/latest/docs/resources/aws_secret_backend_role) | resource |
 | [vault_aws_secret_backend_role.user](https://registry.terraform.io/providers/hashicorp/vault/latest/docs/resources/aws_secret_backend_role) | resource |
 | [vault_generic_endpoint.users](https://registry.terraform.io/providers/hashicorp/vault/latest/docs/resources/generic_endpoint) | resource |
+| [vault_identity_group.oidc](https://registry.terraform.io/providers/hashicorp/vault/latest/docs/resources/identity_group) | resource |
+| [vault_identity_group_alias.oidc](https://registry.terraform.io/providers/hashicorp/vault/latest/docs/resources/identity_group_alias) | resource |
 | [vault_jwt_auth_backend.gh](https://registry.terraform.io/providers/hashicorp/vault/latest/docs/resources/jwt_auth_backend) | resource |
+| [vault_jwt_auth_backend.oidc](https://registry.terraform.io/providers/hashicorp/vault/latest/docs/resources/jwt_auth_backend) | resource |
 | [vault_jwt_auth_backend.this](https://registry.terraform.io/providers/hashicorp/vault/latest/docs/resources/jwt_auth_backend) | resource |
 | [vault_jwt_auth_backend_role.account](https://registry.terraform.io/providers/hashicorp/vault/latest/docs/resources/jwt_auth_backend_role) | resource |
 | [vault_jwt_auth_backend_role.actions](https://registry.terraform.io/providers/hashicorp/vault/latest/docs/resources/jwt_auth_backend_role) | resource |
 | [vault_jwt_auth_backend_role.actions_sec](https://registry.terraform.io/providers/hashicorp/vault/latest/docs/resources/jwt_auth_backend_role) | resource |
+| [vault_jwt_auth_backend_role.oidc](https://registry.terraform.io/providers/hashicorp/vault/latest/docs/resources/jwt_auth_backend_role) | resource |
 | [vault_jwt_auth_backend_role.secret](https://registry.terraform.io/providers/hashicorp/vault/latest/docs/resources/jwt_auth_backend_role) | resource |
 | [vault_kubernetes_auth_backend_config.kubernetes](https://registry.terraform.io/providers/hashicorp/vault/latest/docs/resources/kubernetes_auth_backend_config) | resource |
 | [vault_kubernetes_auth_backend_role.kubernetes](https://registry.terraform.io/providers/hashicorp/vault/latest/docs/resources/kubernetes_auth_backend_role) | resource |
@@ -69,6 +74,7 @@ No modules.
 |------|-------------|------|---------|:--------:|
 | <a name="input_access_key"></a> [access\_key](#input\_access\_key) | AWS Assumed Role access key | `string` | `"ACCESS_KEY"` | no |
 | <a name="input_access_key_user"></a> [access\_key\_user](#input\_access\_key\_user) | AWS Access Key with necessary permissions | `string` | `"ACCESS_KEY"` | no |
+| <a name="input_allowed_redirect_uris"></a> [allowed\_redirect\_uris](#input\_allowed\_redirect\_uris) | A list of allowed values for `redirect_uri` during OIDC logins | `list(string)` | <pre>[<br>  "http://localhost:8250/oidc/callback"<br>]</pre> | no |
 | <a name="input_auth_backend_role"></a> [auth\_backend\_role](#input\_auth\_backend\_role) | Role that will be used by Vault authenticating AWS | <pre>map(object({<br>    account_id = number<br>    sts_role   = string<br>  }))</pre> | <pre>{<br>  "key": {<br>    "account_id": 123456789012,<br>    "sts_role": "arn:aws:iam::123456789012:role/ROLE_NAME"<br>  }<br>}</pre> | no |
 | <a name="input_auth_backend_role_user"></a> [auth\_backend\_role\_user](#input\_auth\_backend\_role\_user) | If enabled, This Role that will be used by Vault authenticating and performing necessary actions | <pre>map(object({<br>    account_id = number<br>    sts_role   = string<br>  }))</pre> | <pre>{<br>  "key": {<br>    "account_id": 13456789012,<br>    "sts_role": "value"<br>  }<br>}</pre> | no |
 | <a name="input_aws_auth_path"></a> [aws\_auth\_path](#input\_aws\_auth\_path) | AWS Authentication Methods path | `string` | `"aws"` | no |
@@ -102,6 +108,7 @@ No modules.
 | <a name="input_delete_version_after"></a> [delete\_version\_after](#input\_delete\_version\_after) | Old secrets version will be deleted after this seconds (7 days) | `number` | `604800` | no |
 | <a name="input_enabled_gh_jwt_backend"></a> [enabled\_gh\_jwt\_backend](#input\_enabled\_gh\_jwt\_backend) | Enable GitHub JWT Auth Method or not | `bool` | n/a | yes |
 | <a name="input_enabled_gl_jwt_backend"></a> [enabled\_gl\_jwt\_backend](#input\_enabled\_gl\_jwt\_backend) | Enable GitLab JWT Auth Method or not | `bool` | n/a | yes |
+| <a name="input_enabled_oidc_backend"></a> [enabled\_oidc\_backend](#input\_enabled\_oidc\_backend) | Enable OIDC Auth Method or not | `bool` | n/a | yes |
 | <a name="input_gh_acc_bound_aud"></a> [gh\_acc\_bound\_aud](#input\_gh\_acc\_bound\_aud) | URL of the repository owner, eg: `https://github.com/OWNER`, such as the organization that owns the repository. This is the only claim that can be customized | `list(string)` | <pre>[<br>  ""<br>]</pre> | no |
 | <a name="input_gh_acc_bound_claims"></a> [gh\_acc\_bound\_claims](#input\_gh\_acc\_bound\_claims) | https://docs.github.com/en/actions/deployment/security-hardening-your-deployments/about-security-hardening-with-openid-connect#understanding-the-oidc-token | <pre>map(object({<br>    role_name     = string<br>    bound_claims  = optional(map(string))<br>    token_ttl     = number<br>    token_max_ttl = number<br>  }))</pre> | <pre>{<br>  "key1": {<br>    "bound_claims": {<br>      "": ""<br>    },<br>    "role_name": "value",<br>    "token_max_ttl": 600,<br>    "token_ttl": 300<br>  }<br>}</pre> | no |
 | <a name="input_gh_acc_bound_sub"></a> [gh\_acc\_bound\_sub](#input\_gh\_acc\_bound\_sub) | Defines the subject claim that is to be validated by the cloud provider | `string` | `""` | no |
@@ -118,6 +125,7 @@ No modules.
 | <a name="input_gl_jwt_token_type"></a> [gl\_jwt\_token\_type](#input\_gl\_jwt\_token\_type) | `service` token or `batch` token? Default is `service` token | `string` | `"service"` | no |
 | <a name="input_gl_secret_bound_claims"></a> [gl\_secret\_bound\_claims](#input\_gl\_secret\_bound\_claims) | JWT/OIDC auth Method role for Secrets values in a Vault server | <pre>map(object({<br>    role_name    = string<br>    bound_claims = map(string)<br>  }))</pre> | <pre>{<br>  "key": {<br>    "bound_claims": {<br>      "project_id": "123123",<br>      "ref": "main,develop",<br>      "ref_type": "branch"<br>    },<br>    "role_name": "reader-role"<br>  }<br>}</pre> | no |
 | <a name="input_gl_secret_token_policies"></a> [gl\_secret\_token\_policies](#input\_gl\_secret\_token\_policies) | Secrets policy name | `list(string)` | <pre>[<br>  "read-acc_b_creds"<br>]</pre> | no |
+| <a name="input_group_alias_name"></a> [group\_alias\_name](#input\_group\_alias\_name) | Name of the group alias | `string` | `"OIDCAuth"` | no |
 | <a name="input_k8s_config"></a> [k8s\_config](#input\_k8s\_config) | Kubernetes Auth Backend configuration | <pre>map(object({<br>    backend            = string<br>    kubernetes_host    = string<br>    kubernetes_ca_cert = string<br>    token_reviewer_jwt = string<br>    issuer             = string<br>  }))</pre> | <pre>{<br>  "dev-k8s": {<br>    "backend": "dev-k8s",<br>    "issuer": "https://kubernetes.default.svc.cluster.local",<br>    "kubernetes_ca_cert": "-----BEGIN CERTIFICATE-----\nASDFQWERQWERASDFASDQ@#RDFADFASDF\n-----END CERTIFICATE-----",<br>    "kubernetes_host": "https://DEV_K8S_IP:6443",<br>    "token_reviewer_jwt": "eyJhbGciOiJSUzI1NiIJASiadura56tIsImtpZCI6InRreml3.ASDFASOIDJFASDKLFLASDF"<br>  }<br>}</pre> | no |
 | <a name="input_k8s_path"></a> [k8s\_path](#input\_k8s\_path) | Kubernetes Authentication path (Support multi clusters with different paths) | <pre>map(object({<br>    path = string<br>  }))</pre> | <pre>{<br>  "dev-k8s": {<br>    "path": "dev-k8s"<br>  }<br>}</pre> | no |
 | <a name="input_k8s_role"></a> [k8s\_role](#input\_k8s\_role) | Kubernetes role to authenticate Vault | <pre>map(object({<br>    role_name                        = string<br>    backend                          = string<br>    bound_service_account_names      = list(string)<br>    bound_service_account_namespaces = list(string)<br>    token_policies                   = list(string)<br>  }))</pre> | <pre>{<br>  "dev-k8s": {<br>    "backend": "dev-k8s",<br>    "bound_service_account_names": [<br>      "dev-k8s"<br>    ],<br>    "bound_service_account_namespaces": [<br>      "default"<br>    ],<br>    "role_name": "dev-k8s",<br>    "token_policies": [<br>      "default"<br>    ]<br>  }<br>}</pre> | no |
@@ -129,12 +137,24 @@ No modules.
 | <a name="input_max_ttl_gl_jwt"></a> [max\_ttl\_gl\_jwt](#input\_max\_ttl\_gl\_jwt) | Maximum Time To Live | `string` | `"2h"` | no |
 | <a name="input_max_ttl_user"></a> [max\_ttl\_user](#input\_max\_ttl\_user) | Maximum Time To Live for AWS temporary account | `number` | `3600` | no |
 | <a name="input_max_versions"></a> [max\_versions](#input\_max\_versions) | Maximum versions of the secrets | `number` | `100` | no |
+| <a name="input_oidc_client_id"></a> [oidc\_client\_id](#input\_oidc\_client\_id) | OIDC client ID | `string` | `""` | no |
+| <a name="input_oidc_client_sec"></a> [oidc\_client\_sec](#input\_oidc\_client\_sec) | OIDC client ID | `string` | `""` | no |
+| <a name="input_oidc_discovery_url"></a> [oidc\_discovery\_url](#input\_oidc\_discovery\_url) | OIDC discovery URL | `string` | `""` | no |
+| <a name="input_oidc_identity_group_name"></a> [oidc\_identity\_group\_name](#input\_oidc\_identity\_group\_name) | Name of the identity group | `string` | `"OIDCAuth"` | no |
+| <a name="input_oidc_identity_group_policies"></a> [oidc\_identity\_group\_policies](#input\_oidc\_identity\_group\_policies) | Policies for OIDC group to attach | `list(string)` | <pre>[<br>  "reader"<br>]</pre> | no |
+| <a name="input_oidc_identity_type"></a> [oidc\_identity\_type](#input\_oidc\_identity\_type) | Type of the group, `internal` or `external`. Defaults to `internal` | `string` | `"internal"` | no |
+| <a name="input_oidc_path"></a> [oidc\_path](#input\_oidc\_path) | OIDC mount path | `string` | `"oidc"` | no |
+| <a name="input_oidc_role"></a> [oidc\_role](#input\_oidc\_role) | OIDC role | `string` | `"reader"` | no |
+| <a name="input_oidc_scopes"></a> [oidc\_scopes](#input\_oidc\_scopes) | A list of OIDC scopes to be used with an OIDC role | `list(string)` | <pre>[<br>  "openid"<br>]</pre> | no |
+| <a name="input_oidc_token_policies"></a> [oidc\_token\_policies](#input\_oidc\_token\_policies) | A list of policies to encode onto generated tokens for OIDC (create it first unless existing) | `list(string)` | <pre>[<br>  "reader"<br>]</pre> | no |
+| <a name="input_oidc_token_type"></a> [oidc\_token\_type](#input\_oidc\_token\_type) | OIDC token type | `string` | `"default-service"` | no |
 | <a name="input_region"></a> [region](#input\_region) | Region that Vault residing | `string` | `"us-east-1"` | no |
 | <a name="input_region_user"></a> [region\_user](#input\_region\_user) | Region that Vault residing | `string` | `"us-east-1"` | no |
 | <a name="input_secret_backend_role"></a> [secret\_backend\_role](#input\_secret\_backend\_role) | Create and use STS Assumed Role by Vault performing necessary actions respectively | <pre>map(object({<br>    name      = string<br>    role_arns = list(string)<br>  }))</pre> | <pre>{<br>  "key": {<br>    "name": "aws",<br>    "role_arns": [<br>      "arn:aws:iam::123456789012:role/ROLE_NAME"<br>    ]<br>  }<br>}</pre> | no |
 | <a name="input_secret_backend_role_user"></a> [secret\_backend\_role\_user](#input\_secret\_backend\_role\_user) | IAM User with defined IAM permission policy respectively | <pre>map(object({<br>    name            = string<br>    policy_document = any<br>  }))</pre> | <pre>{<br>  "key": {<br>    "name": "value",<br>    "policy_document": {}<br>  }<br>}</pre> | no |
 | <a name="input_secret_key"></a> [secret\_key](#input\_secret\_key) | AWS Assumed Role User secret key | `string` | `"SECRET_KEY"` | no |
 | <a name="input_secret_key_user"></a> [secret\_key\_user](#input\_secret\_key\_user) | AWS Secret Key with necessary permissions | `string` | `"SECRET_KEY"` | no |
+| <a name="input_tags"></a> [tags](#input\_tags) | Tag what it is about | `map(string)` | <pre>{<br>  "Organization": "OSS"<br>}</pre> | no |
 | <a name="input_userpass_path"></a> [userpass\_path](#input\_userpass\_path) | Mount path for `Userpass` auth method | `string` | `"userpass"` | no |
 | <a name="input_users_path"></a> [users\_path](#input\_users\_path) | The full logical path with `username` suffix | <pre>map(object({<br>    path      = string<br>    data_json = any<br>  }))</pre> | <pre>{<br>  "user1": {<br>    "data_json": "        {\n          \"policies\": [\"POLICY\"],\n          \"password\": \"PASSWORD\"\n        }\n",<br>    "path": "auth/userpass/users/USERNAME"<br>  }<br>}</pre> | no |
 | <a name="input_vault_policy"></a> [vault\_policy](#input\_vault\_policy) | Policy to read secret by path | <pre>map(object({<br>    name   = string<br>    policy = any<br>  }))</pre> | <pre>{<br>  "key1": {<br>    "name": "reader",<br>    "policy": "        ## Policy for only reading secrets in this path\n        path \"tfvars/data/*\"\n        {\n            capabilities = [\"read\"]\n        }\n"<br>  }<br>}</pre> | no |

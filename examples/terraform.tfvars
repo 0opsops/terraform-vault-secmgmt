@@ -371,3 +371,17 @@ k8s_config = {
   }
 }
 
+
+
+
+## OIDC
+enabled_oidc_backend = true
+oidc_discovery_url   = "https://oss.auth0.com"
+oidc_client_id       = "asdfasdfasdfasdf"
+oidc_client_sec      = "fdsafdsafdsafdsa"
+oidc_identity_type   = "external"
+oidc_scopes          = ["openid", "email"]
+tags = {
+  "Team"         = "Platform"
+  "Organization" = "OSS"
+}

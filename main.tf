@@ -246,3 +246,46 @@ resource "vault_kubernetes_auth_backend_config" "kubernetes" {
   depends_on             = [vault_auth_backend.kubernetes]
 }
 
+
+
+## OIDC
+resource "vault_jwt_auth_backend" "oidc" {
+  count              = var.enabled_oidc_backend ? 1 : 0
+  description        = "OIDC Auth backend"
+  type               = "oidc"
+  path               = var.oidc_path
+  default_role       = var.oidc_role
+  oidc_discovery_url = var.oidc_discovery_url
+  oidc_client_id     = var.oidc_client_id
+  oidc_client_secret = var.oidc_client_sec
+  disable_remount    = false
+}
+
+resource "vault_jwt_auth_backend_role" "oidc" {
+  role_name                    = var.oidc_role
+  backend                      = try(element(vault_jwt_auth_backend.oidc.*.path, 0), "")
+  user_claim                   = "email"
+  role_type                    = "oidc"
+  token_type                   = var.oidc_token_type
+  disable_bound_claims_parsing = true
+  oidc_scopes                  = var.oidc_scopes
+  allowed_redirect_uris        = var.allowed_redirect_uris
+  token_policies               = var.oidc_token_policies
+  token_ttl                    = 600
+  max_age                      = 900
+}
+
+resource "vault_identity_group" "oidc" {
+  name                      = var.oidc_identity_group_name
+  type                      = var.oidc_identity_type
+  policies                  = var.oidc_identity_group_policies
+  external_member_group_ids = false
+  external_policies         = false
+  metadata                  = var.tags
+}
+
+resource "vault_identity_group_alias" "oidc" {
+  name           = var.group_alias_name
+  mount_accessor = try(element(vault_jwt_auth_backend.oidc.*.accessor, 0), "")
+  canonical_id   = vault_identity_group.oidc.id
+}

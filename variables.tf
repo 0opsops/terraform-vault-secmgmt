@@ -602,3 +602,98 @@ variable "k8s_config" {
   }
   description = "Kubernetes Auth Backend configuration"
 }
+
+## OIDC
+variable "enabled_oidc_backend" {
+  type        = bool
+  description = "Enable OIDC Auth Method or not"
+}
+
+variable "oidc_path" {
+  type        = string
+  default     = "oidc"
+  description = "OIDC mount path"
+}
+
+variable "oidc_role" {
+  type        = string
+  default     = "reader"
+  description = "OIDC role"
+}
+
+variable "oidc_discovery_url" {
+  type        = string
+  default     = ""
+  description = "OIDC discovery URL"
+}
+
+variable "oidc_client_id" {
+  type        = string
+  default     = ""
+  description = "OIDC client ID"
+}
+
+variable "oidc_client_sec" {
+  type        = string
+  default     = ""
+  description = "OIDC client ID"
+}
+
+variable "oidc_scopes" {
+  type = list(string)
+  default = [
+    "openid"
+  ]
+  description = "A list of OIDC scopes to be used with an OIDC role"
+}
+
+variable "allowed_redirect_uris" {
+  type = list(string)
+  default = [
+    "http://localhost:8250/oidc/callback"
+  ]
+  description = "A list of allowed values for `redirect_uri` during OIDC logins"
+}
+
+variable "oidc_token_policies" {
+  type        = list(string)
+  default     = ["reader"]
+  description = "A list of policies to encode onto generated tokens for OIDC (create it first unless existing)"
+}
+
+variable "group_alias_name" {
+  type        = string
+  default     = "OIDCAuth"
+  description = "Name of the group alias"
+}
+variable "oidc_identity_group_name" {
+  type        = string
+  default     = "OIDCAuth"
+  description = "Name of the identity group"
+}
+variable "oidc_identity_type" {
+  type        = string
+  default     = "internal"
+  description = "Type of the group, `internal` or `external`. Defaults to `internal`"
+}
+variable "oidc_identity_group_policies" {
+  type        = list(string)
+  default     = ["reader"]
+  description = "Policies for OIDC group to attach"
+}
+variable "oidc_token_type" {
+  type        = string
+  default     = "default-service"
+  description = "OIDC token type"
+}
+variable "tags" {
+  type = map(string)
+  default = {
+    "Organization" = "OSS"
+  }
+  validation {
+    condition     = can(var.metadata["Organization"])
+    error_message = "At least `Organization` tag is required!"
+  }
+  description = "Tag what it is about"
+}
