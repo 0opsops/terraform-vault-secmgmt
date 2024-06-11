@@ -376,12 +376,22 @@ k8s_config = {
 
 ## OIDC
 enabled_oidc_backend = true
+oidc_role            = "reader"
+oidc_token_type      = "service"
 oidc_discovery_url   = "https://oss.auth0.com"
 oidc_client_id       = "asdfasdfasdfasdf"
 oidc_client_sec      = "fdsafdsafdsafdsa"
 oidc_identity_type   = "external"
 oidc_scopes          = ["openid", "email"]
+allowed_redirect_uris = [
+  "http://localhost:8250/oidc/callback",
+  "https://VAULT_URL/ui/vault/auth/oidc/oidc/callback"
+]
+oidc_token_policies          = ["reader"]
+oidc_identity_group_policies = ["reader"]
+oidc_identity_group_name     = "OIDC"
+group_alias_name             = "OIDC"
 tags = {
-  "Team"         = "Platform"
+  "Team"         = "Platform Engineering"
   "Organization" = "OSS"
 }

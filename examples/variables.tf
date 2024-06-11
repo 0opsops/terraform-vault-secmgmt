@@ -720,7 +720,7 @@ variable "oidc_identity_group_policies" {
 }
 variable "oidc_token_type" {
   type        = string
-  default     = "default-service"
+  default     = "service"
   description = "OIDC token type. Defaults to `default-service`"
 }
 variable "tags" {
@@ -729,7 +729,7 @@ variable "tags" {
     "Organization" = "OSS"
   }
   validation {
-    condition     = can(var.metadata["Organization"])
+    condition     = can(var.tags["Organization"])
     error_message = "At least `Organization` tag is required!"
   }
   description = "Tag what it is about"

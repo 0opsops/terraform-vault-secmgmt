@@ -124,12 +124,19 @@ module "vault" {
   k8s_config = var.k8s_config
 
   ## OIDC
-  enabled_oidc_backend = var.enabled_oidc_backend
-  oidc_discovery_url   = var.oidc_discovery_url
-  oidc_client_id       = var.oidc_client_id
-  oidc_client_sec      = var.oidc_client_sec
-  oidc_identity_type   = var.oidc_identity_type
-  oidc_scopes          = var.oidc_scopes
-  tags                 = var.tags
+  enabled_oidc_backend         = var.enabled_oidc_backend
+  oidc_role                    = var.oidc_role
+  oidc_token_type              = var.oidc_token_type
+  oidc_discovery_url           = var.oidc_discovery_url
+  oidc_client_id               = var.oidc_client_id
+  oidc_client_sec              = var.oidc_client_sec
+  oidc_identity_type           = var.oidc_identity_type
+  oidc_scopes                  = var.oidc_scopes
+  allowed_redirect_uris        = var.allowed_redirect_uris
+  oidc_token_policies          = var.oidc_token_policies
+  oidc_identity_group_policies = var.oidc_identity_group_policies
+  oidc_identity_group_name     = var.oidc_identity_group_name
+  group_alias_name             = var.group_alias_name
+  tags                         = var.tags
 }
 
