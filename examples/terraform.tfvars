@@ -53,7 +53,7 @@ kv_v2 = {
     EOF
   },
   "uat" = {
-    path                = "uat/network"
+    sub_path            = "uat/network"
     disable_read        = true
     delete_all_versions = true
     data_json           = <<EOF
@@ -345,6 +345,7 @@ k8s_role = {
     bound_service_account_names      = ["dev-k8s"]
     bound_service_account_namespaces = ["default"]
     token_policies                   = ["default"]
+    token_ttl_k8s                    = 1800
   },
   "prod-k8s" = {
     role_name                        = "prod-k8s"
@@ -352,12 +353,13 @@ k8s_role = {
     bound_service_account_names      = ["prod-k8s"]
     bound_service_account_namespaces = ["default"]
     token_policies                   = ["default"]
+    token_ttl_k8s                    = 900
   }
 }
 k8s_config = {
   "dev-k8s" = {
     backend            = "dev-k8s"
-    kubernetes_host    = "https://DEV_K8S_IP:6443"
+    kubernetes_host    = "https://DEV_K8S_IP:6443"                                                                  # K8S_CLUSTER_ENDPOINT OR PROXY_ENDPOINT
     kubernetes_ca_cert = "-----BEGIN CERTIFICATE-----\nASDFQWERQWERASDFASDQ@#RDFADFASDF\n-----END CERTIFICATE-----" # SERVER_CA.crt
     token_reviewer_jwt = "eyJhbGciOiJSUzI1NiIJASiadura56tIsImtpZCI6InRreml3.ASDFASOIDJFASDKLFLASDF"                 # SERVICE_ACCOUNT_TOKEN
     issuer             = "https://kubernetes.default.svc.cluster.local"

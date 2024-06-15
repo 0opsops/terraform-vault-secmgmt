@@ -570,6 +570,7 @@ variable "k8s_role" {
     bound_service_account_names      = list(string)
     bound_service_account_namespaces = list(string)
     token_policies                   = list(string)
+    token_ttl_k8s                    = number
   }))
   default = {
     "dev-k8s" = {
@@ -578,6 +579,7 @@ variable "k8s_role" {
       bound_service_account_names      = ["dev-k8s"]
       bound_service_account_namespaces = ["default"]
       token_policies                   = ["default"]
+      token_ttl_k8s                    = 3600
     }
   }
   description = "Kubernetes role to authenticate Vault"

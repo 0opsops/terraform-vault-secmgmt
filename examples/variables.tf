@@ -604,6 +604,7 @@ variable "k8s_role" {
     bound_service_account_names      = list(string)
     bound_service_account_namespaces = list(string)
     token_policies                   = list(string)
+    token_ttl_k8s                    = number
   }))
   default = {
     "dev-k8s" = {
@@ -612,6 +613,7 @@ variable "k8s_role" {
       bound_service_account_names      = ["dev-k8s"]
       bound_service_account_namespaces = ["default"]
       token_policies                   = ["default"]
+      token_ttl_k8s                    = 3600
     }
   }
   description = "Kubernetes role to authenticate Vault"
@@ -628,9 +630,9 @@ variable "k8s_config" {
   default = {
     "dev-k8s" = {
       backend            = "dev-k8s"
-      kubernetes_host    = "https://DEV_K8S_IP:6443"                                                                  # K8S_CLUSTER_ENDPOINT OR PROXY_ENDPOINT
-      kubernetes_ca_cert = "-----BEGIN CERTIFICATE-----\nASDFQWERQWERASDFASDQ@#RDFADFASDF\n-----END CERTIFICATE-----" # SERVER_CA.crt
-      token_reviewer_jwt = "eyJhbGciOiJSUzI1NiIJASiadura56tIsImtpZCI6InRreml3.ASDFASOIDJFASDKLFLASDF"                 # SERVICE_ACCOUNT_TOKEN
+      kubernetes_host    = "https://DEV_K8S_IP:6443"                                                                  # K8S_CLUSTER_ENDPOINT OR PROXY_ENDPOINT [k config view --raw --minify --flatten --output='jsonpath={.clusters[].cluster.server}' ]
+      kubernetes_ca_cert = "-----BEGIN CERTIFICATE-----\nASDFQWERQWERASDFASDQ@#RDFADFASDF\n-----END CERTIFICATE-----" # SERVER_CA.crt [k config view --raw --minify --flatten --output='jsonpath={.clusters[].cluster.certificate-authority-data}' | base64 -d]
+      token_reviewer_jwt = "eyJhbGciOASDlvcmVLWcifQ.eyJaadlskjfafDSHskdjfalsdkfjlkafasdfasdf.orasdasf"                # SERVICE_ACCOUNT_TOKEN [k get secrets SA_NAME -o go-template='{{.data.token}}' | base64 -d]
       issuer             = "https://kubernetes.default.svc.cluster.local"
     }
   }
