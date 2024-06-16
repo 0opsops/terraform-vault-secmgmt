@@ -1,8 +1,8 @@
 region = "us-east-1"
 
 # KV VERSION 2
-vault_addr = "https://myvault.com"
-token      = "hvs.asdfasdASDFASDFZXCV"
+vault_addr = "http://127.0.0.1:8200"
+token      = "root"
 
 
 
@@ -51,93 +51,12 @@ kv_v2 = {
       "vpc_name": "env-qa"
       }
     EOF
-  },
-  "uat" = {
-    sub_path            = "uat/network"
-    disable_read        = true
-    delete_all_versions = true
-    data_json           = <<EOF
-      {
-      "availability_zones": [
-          "us-east-1a",
-          "us-east-1b",
-          "us-east-1c"
-      ],
-      "aws_region": "us-east-1",
-      "create_database_internet_gateway_route": true,
-      "create_database_subnet_group": true,
-      "create_database_subnet_route_table": true,
-      "database_subnets": [
-          "192.168.144.0/20",
-          "192.168.160.0/20",
-          "192.168.176.0/20"
-      ],
-      "elasticache_subnets": [
-          "192.168.96.0/20",
-          "192.168.112.0/20",
-          "192.168.128.0/20"
-      ],
-      "environment": "uat",
-      "private_subnets": [
-          "192.168.48.0/20",
-          "192.168.64.0/20",
-          "192.168.80.0/20"
-      ],
-      "public_subnets": [
-          "192.168.0.0/20",
-          "192.168.16.0/20",
-          "192.168.32.0/20"
-      ],
-      "vpc_cidr": "192.168.0.0/16",
-      "vpc_name": "env-uat"
-      }
-    EOF
   }
 }
 
 ## VAULT POLICY
 create_policy = true
 vault_policy = {
-  "qa" = {
-    name   = "qa-network-read"
-    policy = <<EOF
-      ## Policy for only reading QA secret values
-      path "qa/data/*"
-      {
-          capabilities = ["read"]
-      }
-    EOF
-  },
-  "uat" = {
-    name   = "uat-network-read"
-    policy = <<EOF
-      ## Policy for only reading UAT secret values
-      path "uat/data/*"
-      {
-          capabilities = ["read"]
-      }
-    EOF
-  },
-  "account_b" = {
-    name   = "account_b"
-    policy = <<EOF
-      ## Policy for only reading AWS CREDS
-      path "aws/creds/account_b"
-      {
-          capabilities = ["read"]
-      }
-    EOF
-  },
-  "reader" = {
-    name   = "reader"
-    policy = <<EOF
-      ## Reader Policy
-      path "*"
-      {
-        capabilities = ["read","list"]
-      }
-    EOF
-  },
   "admin" = {
     name   = "admin"
     policy = <<EOF
@@ -180,11 +99,11 @@ users_path = { # will create 2 users authenticating vault
 ## ASSUMED_ROLE USER
 access_key                = "KOASDJFKASERKLAJEASDF"
 secret_key                = "ASDFASzxcvfasrefawetafweaASDFAE"
-create_aws_auth_backend   = true
+create_aws_auth_backend   = false
 aws_auth_path             = "aws"
-create_aws_secret_backend = true
+create_aws_secret_backend = false
 aws_secret_path           = "aws"
-create_auth_backend_role  = true
+create_auth_backend_role  = false
 auth_backend_role = {
   "qa" = {
     account_id = "987872910985"
@@ -195,7 +114,7 @@ auth_backend_role = {
     sts_role   = "arn:aws:iam::342412085405:role/automation-role"
   },
 }
-create_secret_backend_role = true
+create_secret_backend_role = false
 secret_backend_role = {
   "qa" = {
     name      = "qa"
@@ -214,18 +133,18 @@ credential_type = "assumed_role"
 ## AWS IAM USER
 access_key_user                = "ASDFASDFGSHDASDFAS?ERF"
 secret_key_user                = "asdfasda4afsefaw4awefaXEfaASDF"
-create_aws_auth_backend_user   = true
+create_aws_auth_backend_user   = false
 aws_auth_path_user             = "account_b"
-create_aws_secret_backend_user = true
+create_aws_secret_backend_user = false
 aws_secret_path_user           = "account_b"
-create_auth_backend_role_user  = true
+create_auth_backend_role_user  = false
 auth_backend_role_user = {
   "acc_b" = {
     account_id = "967438773069"
     sts_role   = "arn:aws:iam::967438773069:role/automation-role"
   }
 }
-create_secret_backend_role_user = true
+create_secret_backend_role_user = false
 secret_backend_role_user = {
   "ec2-user" = {
     name            = "ec2-user"
@@ -249,12 +168,12 @@ region_user          = "us-east-1"
 
 
 ## GITLAB JWT/OIDC
-enabled_gl_jwt_backend = true
+enabled_gl_jwt_backend = false
 gl_jwt_path            = "jwt"
 bound_issuer           = "gitlab.com"
 gl_jwt_token_type      = "service"
 
-create_gl_acc_role = true
+create_gl_acc_role = false
 gl_acc_bound_claims = {
   "qa" = {
     role_name = "qa"
@@ -279,7 +198,7 @@ gl_acc_token_policies = [
   "account_b"
 ]
 
-create_gl_secret_role = true
+create_gl_secret_role = false
 gl_secret_bound_claims = {
   "uat-network-read" = {
     role_name = "uat-network-read"
@@ -307,11 +226,11 @@ gl_secret_token_policies = [
 
 
 ## GITHUB JWT/OIDC
-enabled_gh_jwt_backend = true
+enabled_gh_jwt_backend = false
 gh_jwt_path            = "actions"
 gh_jwt_token_type      = "batch"
 
-create_gh_acc_role = true
+create_gh_acc_role = false
 gh_acc_bound_claims = {
   "key1" = {
     bound_claims = {
@@ -333,53 +252,34 @@ create_gh_secret_role = false
 ## KUBERNETES
 create_k8s = true
 k8s_path = {
-  "dev-k8s" = {
-    path = "dev-k8s"
-  },
-  "prod-k8s" = {
-    path = "prod-k8s"
+  "local-k8s" = {
+    path = "local-k8s"
   }
 }
 k8s_role = {
-  "dev-k8s" = {
-    role_name                        = "dev-k8s"
-    backend                          = "dev-k8s"
-    bound_service_account_names      = ["dev-k8s"]
+  "local-k8s" = {
+    role_name                        = "local-k8s"
+    backend                          = "local-k8s"
+    bound_service_account_names      = ["vault-auth"]
     bound_service_account_namespaces = ["default"]
-    token_policies                   = ["default"]
+    token_policies                   = ["admin"]
     token_ttl_k8s                    = 1800
-  },
-  "prod-k8s" = {
-    role_name                        = "prod-k8s"
-    backend                          = "prod-k8s"
-    bound_service_account_names      = ["prod-k8s"]
-    bound_service_account_namespaces = ["default"]
-    token_policies                   = ["default"]
-    token_ttl_k8s                    = 900
   }
 }
 k8s_config = {
-  "dev-k8s" = {
-    backend            = "dev-k8s"
-    kubernetes_host    = "https://DEV_K8S_IP:6443"                                                                  # K8S_CLUSTER_ENDPOINT OR PROXY_ENDPOINT
-    kubernetes_ca_cert = "-----BEGIN CERTIFICATE-----\nASDFQWERQWERASDFASDQ@#RDFADFASDF\n-----END CERTIFICATE-----" # SERVER_CA.crt
-    token_reviewer_jwt = "eyJhbGciOiJSUzI1NiIJASiadura56tIsImtpZCI6InRreml3.ASDFASOIDJFASDKLFLASDF"                 # SERVICE_ACCOUNT_TOKEN
-    issuer             = "https://kubernetes.default.svc.cluster.local"
-  },
-  "prod-k8s" = {
-    backend            = "prod-k8s"
-    kubernetes_host    = "https://PROD_K8S_IP:6443"                                                                 # K8S_CLUSTER_ENDPOINT OR PROXY_ENDPOINT
-    kubernetes_ca_cert = "-----BEGIN CERTIFICATE-----\nASDFQWERQWERASDFASDQ@#RDFADFASDF\n-----END CERTIFICATE-----" # SERVER_CA.crt
-    token_reviewer_jwt = "eyJhbGciOiJSUzI1NiIJASiadura56tIsImtpZCI6InRreml3.ASDFASOIDJFASDKLFLASDF"                 # SERVICE_ACCOUNT_TOKEN
+  "local-k8s" = {
+    backend            = "local-k8s"
+    kubernetes_host    = "https://10.200.0.1:443"                                                                     # Replace                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        # K8S_CLUSTER_ENDPOINT OR PROXY_ENDPOINT
+    kubernetes_ca_cert = "-----BEGIN CERTIFICATE-----\nASDFQWERQWERASDF\nASDQ@#RDFADFASDF\n-----END CERTIFICATE-----" # Replace # SERVER_CA.crt [k config view --raw --minify --flatten --output='jsonpath={.clusters[].cluster.certificate-authority-data}' | base64 -d]
+    token_reviewer_jwt = "eyJhbGciOASDlvcmVLWcifQ.eyJaadlskjfafDSHskdjfalsdkfjlkafasdfasdf.orasdasf"                  # Replace # SERVICE_ACCOUNT_TOKEN [k get secrets sa-secret -o go-template='{{.data.token}}' | base64 -d]
     issuer             = "https://kubernetes.default.svc.cluster.local"
   }
 }
-
 
 
 
 ## OIDC
-enabled_oidc_backend = false
+enabled_oidc_backend = true
 oidc_auth_path = {
   "gmail" = {
     oidc_path          = "oidc"
@@ -394,7 +294,7 @@ oidc_backend_role = {
     oidc_role_name  = "gmail"
     oidc_user_claim = "sub"
     oidc_token_type = "service"
-    oidc_scopes     = ["openid", "email"]
+    oidc_scopes     = [""]
     allowed_redirect_uris = [
       "http://127.0.0.1:8250/oidc/callback",
       "http://127.0.0.1:8200/ui/vault/auth/oidc/oidc/callback"
@@ -409,6 +309,7 @@ oidc_identity_group = {
     oidc_identity_group_policies = ["admin"]
     tags = {
       "Organization" = "OSS"
+      "Environs"     = "Georgia"
     }
   }
 }

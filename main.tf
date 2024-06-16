@@ -250,45 +250,45 @@ resource "vault_kubernetes_auth_backend_config" "kubernetes" {
 
 ## OIDC
 resource "vault_jwt_auth_backend" "oidc" {
-  count              = var.enabled_oidc_backend ? 1 : 0
+  for_each           = { for k, v in var.oidc_auth_path : k => v if var.enabled_oidc_backend }
   description        = "OIDC Auth backend"
   type               = "oidc"
-  path               = var.oidc_path
-  default_role       = var.oidc_role
-  oidc_discovery_url = var.oidc_discovery_url
-  oidc_client_id     = var.oidc_client_id
-  oidc_client_secret = var.oidc_client_sec
+  path               = each.value.oidc_path
+  default_role       = each.value.oidc_role
+  oidc_discovery_url = each.value.oidc_discovery_url
+  oidc_client_id     = each.value.oidc_client_id
+  oidc_client_secret = each.value.oidc_client_sec
   disable_remount    = false
 }
 
 resource "vault_jwt_auth_backend_role" "oidc" {
-  count                        = var.enabled_oidc_backend ? 1 : 0
-  role_name                    = var.oidc_role
-  backend                      = try(element(vault_jwt_auth_backend.oidc.*.path, 0), "")
-  user_claim                   = "email"
+  for_each                     = { for k, v in var.oidc_backend_role : k => v if var.enabled_oidc_backend }
+  role_name                    = each.value.oidc_role_name
+  backend                      = try(element(vault_jwt_auth_backend.oidc[each.key].*.path, 0), "")
+  user_claim                   = each.value.oidc_user_claim
   role_type                    = "oidc"
-  token_type                   = var.oidc_token_type
+  token_type                   = each.value.oidc_token_type
   disable_bound_claims_parsing = true
-  oidc_scopes                  = var.oidc_scopes
-  allowed_redirect_uris        = var.allowed_redirect_uris
-  token_policies               = var.oidc_token_policies
+  oidc_scopes                  = each.value.oidc_scopes
+  allowed_redirect_uris        = each.value.allowed_redirect_uris
+  token_policies               = each.value.oidc_token_policies
   token_ttl                    = 600
-  max_age                      = 900
+  token_max_ttl                = 3600
 }
 
 resource "vault_identity_group" "oidc" {
-  count                     = var.enabled_oidc_backend ? 1 : 0
-  name                      = var.oidc_identity_group_name
-  type                      = var.oidc_identity_type
-  policies                  = var.oidc_identity_group_policies
+  for_each                  = { for k, v in var.oidc_identity_group : k => v if var.enabled_oidc_backend }
+  name                      = each.value.oidc_identity_group_name
+  type                      = each.value.oidc_identity_type
+  policies                  = each.value.oidc_identity_group_policies
   external_member_group_ids = false
   external_policies         = false
-  metadata                  = var.tags
+  metadata                  = each.value.tags
 }
 
 resource "vault_identity_group_alias" "oidc" {
-  count          = var.enabled_oidc_backend ? 1 : 0
-  name           = var.group_alias_name
-  mount_accessor = try(element(vault_jwt_auth_backend.oidc.*.accessor, 0), "")
-  canonical_id   = try(element(vault_identity_group.oidc.*.id, 0), "")
+  for_each       = { for k, v in var.oidc_alias : k => v if var.enabled_oidc_backend }
+  name           = each.value.group_alias_name
+  mount_accessor = try(element(vault_jwt_auth_backend.oidc[each.key].*.accessor, 0), "")
+  canonical_id   = try(element(vault_identity_group.oidc[each.key].*.id, 0), "")
 }

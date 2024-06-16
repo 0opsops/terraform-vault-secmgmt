@@ -6,13 +6,13 @@ terraform {
       version = ">= 4.2.0"
     }
   }
-
-  backend "s3" {
-    bucket  = "BUCKET_NAME"             # Replace state file bucket nmae
-    key     = "STATE_FILE_NAME.tfstate" # Replace state file name
-    region  = "AWS_REGION"
-    encrypt = true
-  }
+  ## Uncomment if saving statefile on S3
+  # backend "s3" {
+  #   bucket  = "BUCKET_NAME"             # Replace state file bucket nmae
+  #   key     = "STATE_FILE_NAME.tfstate" # Replace state file name
+  #   region  = "AWS_REGION"
+  #   encrypt = true
+  # }
 }
 
 provider "vault" {
@@ -26,7 +26,6 @@ module "vault" {
   # source                = "git::github.com/0opsops/terraform-vault-secmgmt.git"   ## latest
   source  = "0opsops/secmgmt/vault"
   version = "v3.9.7"
-
 
   ## KV VERSION 2 SECRETS
   create_kv_engine = var.create_kv_engine

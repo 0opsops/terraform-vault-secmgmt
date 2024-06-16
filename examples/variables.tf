@@ -406,15 +406,17 @@ variable "create_gl_acc_role" {
 
 variable "gl_acc_bound_claims" {
   type = map(object({
-    role_name    = string
-    bound_claims = map(string)
+    role_name         = string
+    bound_claims      = map(string)
+    bound_claims_type = string
   }))
   default = {
     "key" = {
       bound_claims = {
         "key" = "value"
       }
-      role_name = "value"
+      role_name         = "value"
+      bound_claims_type = "glob"
     }
   }
   description = "JWT/OIDC auth Method role for AWS Account in a Vault server"
@@ -630,9 +632,9 @@ variable "k8s_config" {
   default = {
     "dev-k8s" = {
       backend            = "dev-k8s"
-      kubernetes_host    = "https://DEV_K8S_IP:6443"                                                                  # K8S_CLUSTER_ENDPOINT OR PROXY_ENDPOINT [k config view --raw --minify --flatten --output='jsonpath={.clusters[].cluster.server}' ]
-      kubernetes_ca_cert = "-----BEGIN CERTIFICATE-----\nASDFQWERQWERASDFASDQ@#RDFADFASDF\n-----END CERTIFICATE-----" # SERVER_CA.crt [k config view --raw --minify --flatten --output='jsonpath={.clusters[].cluster.certificate-authority-data}' | base64 -d]
-      token_reviewer_jwt = "eyJhbGciOASDlvcmVLWcifQ.eyJaadlskjfafDSHskdjfalsdkfjlkafasdfasdf.orasdasf"                # SERVICE_ACCOUNT_TOKEN [k get secrets SA_NAME -o go-template='{{.data.token}}' | base64 -d]
+      kubernetes_host    = "https://K8S_HOST_ADDR:6443"                                                                   # K8S_CLUSTER_ENDPOINT OR PROXY_ENDPOINT [k config view --raw --minify --flatten --output='jsonpath={.clusters[].cluster.server}']
+      kubernetes_ca_cert = "-----BEGIN CERTIFICATE-----\nASDFQWERQWERASDFASDQ@#RDFADFASDF\n-----END CERTIFICATE-----"     # SERVER_CA.crt [k config view --raw --minify --flatten --output='jsonpath={.clusters[].cluster.certificate-authority-data}' | base64 -d]
+      token_reviewer_jwt = "eyJhbGciOASDlvcmVLWcifQ.eyJaadlskjfafDSHskdjfalsdkfjlkafasdfasdf.orasdasf"                    # SERVICE_ACCOUNT_TOKEN [k get secrets SA_SECRET_NAME -o go-template='{{.data.token}}' | base64 -d]
       issuer             = "https://kubernetes.default.svc.cluster.local"
     }
   }
@@ -647,92 +649,79 @@ variable "enabled_oidc_backend" {
   description = "Enable OIDC Auth Method or not"
 }
 
-variable "oidc_path" {
-  type        = string
-  default     = "oidc"
+variable "oidc_auth_path" {
+  type = map(object({
+    oidc_path          = string
+    oidc_role          = string
+    oidc_discovery_url = string
+    oidc_client_id     = string
+    oidc_client_sec    = string
+  }))
+  default = {
+    "gmail" = {
+      oidc_path          = "oidc"
+      oidc_role          = "gmail"
+      oidc_discovery_url = "https://accounts.google.com"
+      oidc_client_id     = "123456789012-5k3hfs5kvc1h82kjkar895ir6118io4bra8q.apps.googleusercontent.com"
+      oidc_client_sec    = "ASDFDF-xRG_MCY1Ulkr8Ke0cBU87yr_XDKR"
+    }
+  }
   description = "OIDC mount path"
 }
 
-variable "oidc_role" {
-  type        = string
-  default     = "reader"
-  description = "OIDC role"
-}
-
-variable "oidc_discovery_url" {
-  type        = string
-  default     = ""
-  description = "OIDC discovery URL"
-}
-
-variable "oidc_client_id" {
-  type        = string
-  default     = ""
-  description = "OIDC client ID"
-}
-
-variable "oidc_client_sec" {
-  type        = string
-  default     = ""
-  description = "OIDC client ID"
-}
-
-variable "oidc_scopes" {
-  type = list(string)
-  default = [
-    "openid"
-  ]
-  description = "A list of OIDC scopes to be used with an OIDC role"
-}
-
-variable "allowed_redirect_uris" {
-  type = list(string)
-  default = [
-    "http://localhost:8250/oidc/callback",
-    "https://VAULT_URL/ui/vault/auth/oidc/oidc/callback"
-  ]
-  description = "A list of allowed values for `redirect_uri` during OIDC logins"
-}
-
-variable "oidc_token_policies" {
-  type        = list(string)
-  default     = ["reader"]
-  description = "A list of policies to encode onto generated tokens for OIDC (create it first unless existing)"
-}
-
-variable "group_alias_name" {
-  type        = string
-  default     = "OIDC"
-  description = "Name of the group alias"
-}
-variable "oidc_identity_group_name" {
-  type        = string
-  default     = "OIDC"
-  description = "Name of the identity group"
-}
-variable "oidc_identity_type" {
-  type        = string
-  default     = "internal"
-  description = "Type of the group, `internal` or `external`. Defaults to `internal`"
-}
-variable "oidc_identity_group_policies" {
-  type        = list(string)
-  default     = ["reader"]
-  description = "Policies for OIDC group to attach"
-}
-variable "oidc_token_type" {
-  type        = string
-  default     = "service"
-  description = "OIDC token type. Defaults to `default-service`"
-}
-variable "tags" {
-  type = map(string)
+variable "oidc_backend_role" {
+  type = map(object({
+    oidc_role_name        = string
+    oidc_user_claim       = string
+    oidc_token_type       = string
+    oidc_scopes           = list(string)
+    allowed_redirect_uris = list(string)
+    oidc_token_policies   = list(string)
+  }))
   default = {
-    "Organization" = "OSS"
+    "gmail" = {
+      oidc_role_name  = "gmail"
+      oidc_user_claim = "email"
+      oidc_token_type = "service"
+      oidc_scopes     = ["openid"]
+      allowed_redirect_uris = [
+        "http://127.0.0.1:8250/oidc/callback",
+        "http://127.0.0.1:8200/ui/vault/auth/oidc/oidc/callback"
+      ]
+      oidc_token_policies = ["reader"]
+    }
   }
-  validation {
-    condition     = can(var.tags["Organization"])
-    error_message = "At least `Organization` tag is required!"
+  description = "OIDC role to login to Vault"
+}
+
+variable "oidc_identity_group" {
+  type = map(object({
+    oidc_identity_group_name     = string
+    oidc_identity_type           = string
+    oidc_identity_group_policies = list(string)
+    tags                         = map(string)
+  }))
+  default = {
+    "gmail" = {
+      oidc_identity_group_name     = "gmail"
+      oidc_identity_type           = "external"
+      oidc_identity_group_policies = ["reader"]
+      tags = {
+        "Organization" = "OSS"
+      }
+    }
   }
-  description = "Tag what it is about"
+  description = "Name of the OIDC identity group"
+}
+
+variable "oidc_alias" {
+  type = map(object({
+    group_alias_name = string
+  }))
+  default = {
+    "gmail" = {
+      group_alias_name = "gmail"
+    }
+  }
+  description = "Name of the OIDC group alias"
 }
