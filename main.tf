@@ -229,6 +229,7 @@ resource "vault_kubernetes_auth_backend_role" "kubernetes" {
   bound_service_account_namespaces = each.value.bound_service_account_namespaces
   token_policies                   = each.value.token_policies
   token_ttl                        = each.value.token_ttl_k8s
+  audience                         = each.value.audience_k8s
   token_explicit_max_ttl           = 0
   token_max_ttl                    = 0
   token_type                       = "default"

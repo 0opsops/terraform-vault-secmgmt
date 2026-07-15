@@ -572,6 +572,7 @@ variable "k8s_role" {
     bound_service_account_namespaces = list(string)
     token_policies                   = list(string)
     token_ttl_k8s                    = number
+    audience_k8s                     = string
   }))
   default = {
     "dev-k8s" = {
@@ -581,6 +582,7 @@ variable "k8s_role" {
       bound_service_account_namespaces = ["default"]
       token_policies                   = ["default"]
       token_ttl_k8s                    = 3600
+      audience_k8s                     = "https://kubernetes.default.svc.cluster.local"
     }
   }
   description = "Kubernetes role to authenticate Vault"
